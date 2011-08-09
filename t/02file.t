@@ -4,6 +4,7 @@ use strict;
 use warnings;
 use Test::More;
 use Text::VimColor;
+require "t/lib/test_env.pm";
 
 plan tests => 1;
 

@@ -1,6 +1,8 @@
-package Text::VimColor;
 use warnings;
 use strict;
+
+package Text::VimColor;
+our $VERSION = '0.12';
 
 use IO::File;
 use File::Copy qw( copy );
@@ -12,9 +14,8 @@ die "Text::VimColor can't see where it's installed"
    unless -f __FILE__;
 our $SHARED = file(__FILE__)->dir->subdir('VimColor')->stringify;
 
-our $VERSION = '0.11';
 our $VIM_COMMAND = 'vim';
-our @VIM_OPTIONS = (qw( -RXZ -i NONE -u NONE -N ), "+set nomodeline");
+our @VIM_OPTIONS = (qw( -RXZ -i NONE -u NONE -N -n ), "+set nomodeline");
 our $NAMESPACE_ID = 'http://ns.laxan.com/text-vimcolor/1';
 
 our %VIM_LET = (
@@ -33,6 +34,19 @@ our %SYNTAX_TYPE = (
    Underlined => 1,
    Error      => 1,
    Todo       => 1,
+);
+
+our %ANSI_COLORS = (
+   Comment    =>  'blue',
+   Constant   =>  'red',
+   Identifier =>  'cyan',
+   Statement  =>  'yellow',
+   PreProc    =>  'magenta',
+   Type       =>  'green',
+   Special    =>  'bright_magenta',
+   Underlined =>  'underline',
+   Error      =>  'on_red',
+   Todo       =>  'on_cyan',
 );
 
 # Set to true to print the command line used to run Vim.
@@ -102,6 +116,28 @@ sub syntax_mark_string
    $self->_do_markup;
 
    return $self;
+}
+
+sub ansi
+{
+   my ($self) = @_;
+   my $syntax = $self->marked;
+
+   require Term::ANSIColor;
+   # allow the environment to overwrite;
+   my %colors = (%ANSI_COLORS,
+      split(/\s*[=;]\s*/, $ENV{TEXT_VIMCOLOR_ANSI} || '')
+   );
+
+   my $ansi = '';
+   foreach (@$syntax) {
+      $ansi .= $_->[1], next
+         if $_->[0] eq '';
+
+      $ansi .= Term::ANSIColor::colored([ $colors{ $_->[0] } ], $_->[1]);
+   }
+
+   return $ansi;
 }
 
 sub html
@@ -388,6 +424,7 @@ sub _run
    else {
       defined $pid
          or croak "error forking to run $prog: $!";
+      tied $_ and untie $_ for *STDOUT, *STDERR, *STDIN;
       open STDIN, '/dev/null';
       open STDOUT, '>/dev/null';
       open STDERR, '>&=' . fileno($err_fh)
@@ -415,6 +452,7 @@ Text::VimColor - syntax color text in HTML or XML using Vim
 
    print $syntax->html;
    print $syntax->xml;
+   print $syntax->ansi;
 
 =head1 DESCRIPTION
 
@@ -437,6 +475,11 @@ which can be converted to other formats, for example, using XSLT
 
 A simple Perl data structure, so that Perl code can be used to turn it
 into whatever is needed
+
+=item ANSI Escape Sequences
+
+A string marked with L<Term::ANSIColor>
+suitable for printing to a terminal.
 
 =back
 
@@ -565,7 +608,7 @@ The default is C<vim>.
 
 A reference to an array of options to pass to Vim.  The default options are:
 
-   qw( -RXZ -i NONE -u NONE -N )
+   qw( -RXZ -i NONE -u NONE -N -n ), "+set nomodeline"
 
 =item vim_let
 
@@ -623,6 +666,20 @@ Does the same as C<syntax_mark_file> (see above) but uses a string as input.
 I<string> can also be a reference to a string.
 Returns the object it was called on.  Supports the C<filetype> option
 just as C<syntax_mark_file> does.
+
+=item ansi()
+
+Return the string marked with ANSI escape sequences (using L<Term::ANSIColor>)
+based on the Vim syntax colouring of the input file.
+
+This is the default format for the included L<text-vimcolor> script
+which makes it like a colored version of C<cat>.
+
+You can alter the color scheme using the C<TEXT_VIMCOLOR_ANSI>
+environment variable in the format of C<< "SynGroup=color;" >>.
+For example:
+
+   TEXT_VIMCOLOR_ANSI='Comment=green;Statement = magenta; '
 
 =item html()
 
@@ -764,20 +821,17 @@ environments:
 
 =over 4
 
-=item text-vimcolor(1)
+=item L<text-vimcolor>(1)
 
 A simple command line interface to this module's features.  It can be used
-to produce HTML and XML output, and can also generate PDF output using
+to produce HTML and XML output,
+print to the screen (like a colored C<cat(1)>),
+and can also generate PDF output using
 an XSLT/XSL-FO stylesheet and the FOP processor.
 
 =item http://www.vim.org/
 
 Everything to do with the Vim text editor.
-
-=item http://ungwe.org/blog/
-
-The author's weblog, which uses this module.  It is used to make the code
-samples look pretty.
 
 =back
 
@@ -792,11 +846,6 @@ Quite a few, actually:
 Apparently this module doesn't always work if run from within a 'gvim'
 window, although I've been unable to reproduce this so far.
 CPAN bug #11555.
-
-=item *
-
-Things can break if there is already a Vim swapfile, but sometimes it
-seems to work.
 
 =item *
 
@@ -824,6 +873,8 @@ who knows Windows can sort it out let me know.
 
 Geoff Richards E<lt>qef@laxan.comE<gt>
 
+Currently maintained by Randy Stauner C<< rwstauner@cpan.org >>.
+
 The Vim script F<mark.vim> is a crufted version of F<2html.vim> by
 Bram Moolenaar E<lt>Bram@vim.orgE<gt> and
 David Ne\v{c}as (Yeti) E<lt>yeti@physics.muni.czE<gt>.
@@ -831,6 +882,7 @@ David Ne\v{c}as (Yeti) E<lt>yeti@physics.muni.czE<gt>.
 =head1 COPYRIGHT
 
 Copyright 2002-2006, Geoff Richards.
+Copyright 2011 Randy Stauner.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
