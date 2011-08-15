@@ -1,17 +1,17 @@
+# vim: set ts=2 sts=2 sw=2 expandtab smarttab:
 # Check that things which should produce identical output do.
 
 use strict;
 use warnings;
 use Test::More;
-use Text::VimColor;
-require "t/lib/test_env.pm";
-use Path::Class qw( file );
+use lib 't/lib';
+use TVC_Test;
 
 plan tests => 2;
 
 # Check that passing coloring with the 'filetype' option has the same output
 # whether Vim knows the filename or not.
-my $filename = file('t', 'hello.c')->stringify;
+my $filename = file('t', 'data', 'hello.c')->stringify;
 my $syntax1 = Text::VimColor->new(
    file => $filename,
    filetype => 'c',
@@ -33,5 +33,3 @@ my $syntax3 = Text::VimColor->new(
 );
 is($syntax1->html, $syntax3->html,
    'check that HTML output for hello.c comes out right using a string ref');
-
-# vim:ft=perl ts=3 sw=3 expandtab:

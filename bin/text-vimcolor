@@ -1,4 +1,18 @@
 #!/usr/bin/perl -w
+# vim: set ts=2 sts=2 sw=2 expandtab smarttab:
+#
+# This file is part of Text-VimColor
+#
+# This software is copyright (c) 2002-2006 by Geoff Richards.
+#
+# This software is copyright (c) 2011 by Randy Stauner.
+#
+# This is free software; you can redistribute it and/or modify it under
+# the same terms as the Perl 5 programming language system itself.
+#
+# PODNAME: text-vimcolor
+# ABSTRACT: Use Text:VimColor from the command line
+
 use strict;
 
 use Text::VimColor;
@@ -6,8 +20,6 @@ use Getopt::Long;
 use File::Temp qw( tempfile );
 use IO::File;
 use Path::Class qw( file );
-
-my $XSL_STYLESHEET = file($Text::VimColor::SHARED, 'light.xsl');
 
 # Default values for options.
 my $filetype;
@@ -116,7 +128,7 @@ else {   # ($format eq 'pdf')
    print $fh $syntax->xml
       or die "$0: error writing to temporary file '$tmp_filename': $!\n";
 
-   system('fop', '-xsl', $XSL_STYLESHEET,
+   system('fop', '-xsl', Text::VimColor->dist_file('light.xsl'),
                  '-xml', $tmp_filename,
                  '-pdf', $output_filename) == 0
       or die "$0: error running 'fop' (exit code was $?).\n";
@@ -127,11 +139,21 @@ else {   # ($format eq 'pdf')
 
 exit 0;
 
+
 __END__
+=pod
+
+=for :stopwords Geoff Richards Randy Stauner ACKNOWLEDGEMENTS ansi html xml DOCTYPE XHTML
+XSL XSLT XSL-FO pdf inline stylesheet filetype --filetype --unlet --inline
+--no-inline-stylesheet text-vimcolor
 
 =head1 NAME
 
-text-vimcolor - command-line program to syntax color a file in ANSI, HTML, XML or PDF
+text-vimcolor - Use Text:VimColor from the command line
+
+=head1 VERSION
+
+version 0.13
 
 =head1 SYNOPSIS
 
@@ -146,19 +168,18 @@ text-vimcolor - command-line program to syntax color a file in ANSI, HTML, XML o
 This program uses the Vim text editor to highlight text according to its
 syntax, and turn the highlighting into ANSI, HTML, XML or PDF output.  It works
 with any file type which Vim itself can highlight.  Usually Vim will be
-able to autodetect the file format based on the filename (and sometimes the
+able to auto-detect the file format based on the filename (and sometimes the
 contents of the file).
 
 Exactly one filename should be given on the command line to name the input
-file.  If none is given input will instead be read from stdin (the standard
-input).
+file.  If none is given input will instead be read from C<STDIN>.
 
 If Vim can't guess the file type automatically, it can be specified explicitly
 using the C<--filetype> option.  For example:
 
    $ text-vimcolor --format html --filetype prolog foo.pl > foo.html
 
-This program is a command line interface to the Perl module Text::VimColor.
+This program is a command line interface to the Perl module L<Text::VimColor>.
 
 =head1 OPTIONS
 
@@ -178,7 +199,7 @@ the command used to run Vim.
 =item --filetype I<file-type>
 
 Set the type of the file explicitly.  The I<file-type> argument should be
-something which Vim will recognise when set with its C<filetype> option.
+something which Vim will recognize when set with its C<filetype> option.
 Examples are C<perl>, C<cpp> (for C++) and C<sh> (for Unix shell scripts).
 These names are case sensitive, and should usually be all-lowercase.
 
@@ -191,7 +212,7 @@ The output format to generate.  Must be one of the following:
 =item ansi
 
 Output text marked up with ANSI escape sequences (using L<Term::ANSIColor>).
-This is like a colorized version of C<cat>.
+This is like a colorized version of C<cat(1)>.
 
 You can alter the color scheme using the C<TEXT_VIMCOLOR_ANSI>
 environment variable in the format of C<< "SynGroup=color;" >>.
@@ -201,7 +222,7 @@ For example:
 
 =item html
 
-Generate XHTML output, with text marked with C<E<lt>spanE<gt>> elements
+Generate XHTML output, with text marked with C<< <span> >> elements
 with C<class> attributes.  A CSS stylesheet should be used to define the
 coloring, etc., for the output.  See the C<--full-page> option below.
 
@@ -221,26 +242,26 @@ specified with C<--output> with this format.
 =back
 
 Full details of the HTML and XML output formats can be found in the
-documentation for Text::VimColor.
+documentation for L<Text::VimColor>.
 
 =item --output I<output-filename>
 
 Specifies the name of the output file.
 If this option is omitted, the output will be sent
-to stdout (the standard output).  This option is required when the output
+to <STDOUT>.  This option is required when the output
 format is PDF (because of limitations in FOP).
 
 =item --full-page
 
 When the output format is HTML, this option will make the output a complete
 HTML page, rather than just a fragment of HTML.  A CSS stylesheet will be
-inserted inline into the output, so the output will be useable as it is.
+inserted inline into the output, so the output will be usable as it is.
 
 =item --no-inline-stylesheet
 
 When the output format is HTML and C<--fullpage> is given, a stylesheet
 is normally inserted in-line in the output file.  If this option is given it
-will instead be referenced with a C<E<lt>linkE<gt>> element.
+will instead be referenced with a C<< <link> >> element.
 
 =item --let I<name>=I<value>
 
@@ -274,22 +295,43 @@ which often doesn't work.  This is also why it is mind numbingly slow.
 =item *
 
 FOP (0.20.3) seems to ignore the C<background-color> property on
-C<E<lt>fo:inlineE<gt>>.  If that's what it's meant to do, how do you set the
+C<< <fo:inline> >>.  If that's what it's meant to do, how do you set the
 background color on part of a line?
 
 =back
 
-=head1 AUTHOR
+=head1 SEE ALSO
 
-Geoff Richards E<lt>qef@laxan.comE<gt>
+=over 4
 
-=head1 COPYRIGHT
+=item *
 
-Copyright 2002-2006, Geoff Richards.
+L<Text::VimColor>
 
-This program is free software; you can redistribute it and/or
-modify it under the same terms as Perl.
+=back
+
+=head1 AUTHORS
+
+=over 4
+
+=item *
+
+Geoff Richards <qef@laxan.com>
+
+=item *
+
+Randy Stauner <rwstauner@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2002-2006 by Geoff Richards.
+
+This software is copyright (c) 2011 by Randy Stauner.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 
-# vi:ts=3 sw=3 expandtab

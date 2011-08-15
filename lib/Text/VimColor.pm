@@ -1,18 +1,31 @@
+# vim: set ts=2 sts=2 sw=2 expandtab smarttab:
+#
+# This file is part of Text-VimColor
+#
+# This software is copyright (c) 2002-2006 by Geoff Richards.
+#
+# This software is copyright (c) 2011 by Randy Stauner.
+#
+# This is free software; you can redistribute it and/or modify it under
+# the same terms as the Perl 5 programming language system itself.
+#
 use warnings;
 use strict;
 
 package Text::VimColor;
-our $VERSION = '0.12';
+# ABSTRACT: Syntax highlight text using Vim
+our $VERSION = '0.13'; # VERSION
+our $AUTHORITY = 'cpan:RWSTAUNER'; # AUTHORITY
 
 use IO::File;
 use File::Copy qw( copy );
+use File::ShareDir ();
 use File::Temp qw( tempfile );
 use Path::Class qw( file );
 use Carp;
 
-die "Text::VimColor can't see where it's installed"
-   unless -f __FILE__;
-our $SHARED = file(__FILE__)->dir->subdir('VimColor')->stringify;
+# for backward compatibility
+our $SHARED = File::ShareDir::dist_dir('Text-VimColor');
 
 our $VIM_COMMAND = 'vim';
 our @VIM_OPTIONS = (qw( -RXZ -i NONE -u NONE -N -n ), "+set nomodeline");
@@ -79,6 +92,11 @@ sub new
       if defined $options{file} || defined $options{string};
 
    return $self;
+}
+
+sub dist_file {
+  my $self = shift;
+  return File::ShareDir::dist_file('Text-VimColor', @_);
 }
 
 sub vim_let
@@ -211,7 +229,7 @@ sub input_filename
    my $file = $self->{file};
    return $file if defined $file && !ref $file;
 
-   return undef;
+   return;
 }
 
 # Return a string consisting of the start of an XHTML file, with a stylesheet
@@ -233,7 +251,7 @@ sub _html_header
       }
       else {
          my $file = $self->{html_stylesheet_file};
-         $file = file($SHARED, 'light.css')->stringify
+         $file = $self->dist_file('light.css')
             unless defined $file;
          unless (ref $file) {
             $file = IO::File->new($file, 'r')
@@ -248,7 +266,7 @@ sub _html_header
       $stylesheet =
          "<link rel=\"stylesheet\" type=\"text/css\" href=\"" .
          _xml_escape($self->{html_stylesheet_url} ||
-                     "file://$SHARED/light.css") .
+                     "file://${\ file($self->dist_file('light.css'))->as_foreign('Unix') }") .
          "\" />\n";
    }
 
@@ -280,7 +298,7 @@ sub _xml_escape
 sub _do_markup
 {
    my ($self) = @_;
-   my $vim_syntax_script = file($SHARED, 'mark.vim')->stringify;
+   my $vim_syntax_script = $self->dist_file('mark.vim');
 
    croak "Text::VimColor syntax script '$vim_syntax_script' not installed"
       unless -f $vim_syntax_script && -r $vim_syntax_script;
@@ -394,6 +412,7 @@ sub _run
    my ($self, $prog, @args) = @_;
 
    if ($DEBUG) {
+      ## no critic (MutatingListFunctions)
       print STDERR __PACKAGE__."::_run: $prog " .
             join(' ', map { s/'/'\\''/g; "'$_'" } @args) . "\n";
    }
@@ -425,6 +444,7 @@ sub _run
       defined $pid
          or croak "error forking to run $prog: $!";
       tied $_ and untie $_ for *STDOUT, *STDERR, *STDIN;
+      ## no critic (TwoArgOpen)
       open STDIN, '/dev/null';
       open STDOUT, '>/dev/null';
       open STDERR, '>&=' . fileno($err_fh)
@@ -436,11 +456,28 @@ sub _run
 
 1;
 
+
+# Local Variables:
+# mode: perl
+# perl-indent-level: 3
+# perl-continued-statement-offset: 3
+# End:
+
 __END__
+=pod
+
+=for :stopwords Geoff Richards Randy Stauner ACKNOWLEDGEMENTS ansi html xml DOCTYPE XHTML
+XSL XSLT XSL-FO pdf inline stylesheet filetype PreProc Todo Moolenaar cpan
+testmatrix url annocpan anno bugtracker rt cpants kwalitee diff irc mailto
+metadata placeholders
 
 =head1 NAME
 
-Text::VimColor - syntax color text in HTML or XML using Vim
+Text::VimColor - Syntax highlight text using Vim
+
+=head1 VERSION
+
+version 0.13
 
 =head1 SYNOPSIS
 
@@ -457,14 +494,14 @@ Text::VimColor - syntax color text in HTML or XML using Vim
 =head1 DESCRIPTION
 
 This module tries to markup text files according to their syntax.  It can
-be used to produce web pages with pretty-printed colourful source code
+be used to produce web pages with pretty-printed colorful source code
 samples.  It can produce output in the following formats:
 
 =over 4
 
 =item HTML
 
-Valid XHTML 1.0, with the exact colouring and style left to a CSS stylesheet
+Valid XHTML 1.0, with the exact coloring and style left to a CSS stylesheet
 
 =item XML
 
@@ -490,18 +527,18 @@ strings, etc.  The Perl code then reads back this markup and converts it
 to the desired output format.
 
 This is an object-oriented module.  To use it, create an object with
-the C<new> function (as shown above in the SYNOPSIS) and then call methods
+the L</new> function (as shown in L</SYNOPSIS>) and then call methods
 to get the markup out.
 
 =head1 METHODS
 
-=over 4
+=head2 new
 
-=item new(I<options>)
+  my $tvc = Text::VimColor->new(%options)
 
 Returns a syntax highlighting object.  Pass it a hash of options.
 
-The following options are recognised:
+The following options are recognized:
 
 =over 4
 
@@ -513,53 +550,52 @@ Note that using a filename might allow Vim to guess the file type from its
 name if none is specified explicitly.
 
 If the file isn't specified while creating the object, it can be given later
-in a call to the C<syntax_mark_file> method (see below), allowing a single
-Text::VimColor object to be used with multiple input files.
+in a call to the L</syntax_mark_file> method (see below), allowing a single
+C<Text::VimColor> object to be used with multiple input files.
 
 =item string
 
 Use this to pass a string to be used as the input.  This is an alternative
 to the C<file> option.  A reference to a string will also work.
 
-The C<syntax_mark_string> method (see below) is another way to use a string
-as input.
+The L</syntax_mark_string> method is another way to use a string as input.
 
 =item filetype
 
 Specify the type of file Vim should expect, in case Vim's automatic
 detection by filename or contents doesn't get it right.  This is
-particularly important when providing the file as a string of file
+particularly important when providing the file as a string or file
 handle, since Vim won't be able to use the file extension to guess
 the file type.
 
-The filetypes recognised by Vim are short strings like 'perl' or 'lisp'.
+The file types recognized by Vim are short strings like 'perl' or 'lisp'.
 They are the names of files in the 'syntax' directory in the Vim
 distribution.
 
-This option, whether or not it is passed to C<new()>, can be overridden
-when calling C<syntax_mark_file> and C<syntax_mark_string>, so you can
+This option, whether or not it is passed to L</new>, can be overridden
+when calling L</syntax_mark_file> and L</syntax_mark_string>, so you can
 use the same object to process multiple files of different types.
 
 =item html_full_page
 
-By default the C<html()> output method returns a fragment of HTML, not a
-full file.  To make useful output this must be wrapped in a C<E<lt>preE<gt>>
+By default the L</html> output method returns a fragment of HTML, not a
+full file.  To make useful output this must be wrapped in a C<< <pre> >>
 element and a stylesheet must be included from somewhere.  Setting the
-C<html_full_page> option will instead make the C<html()> method return a
+L</html_full_page> option will instead make the L</html> method return a
 complete stand-alone XHTML file.
 
 Note that while this is useful for testing, most of the time you'll want to
 put the syntax highlighted source code in a page with some other content,
-in which case the default output of the C<html()> method is more appropriate.
+in which case the default output of the L</html> method is more appropriate.
 
 =item html_inline_stylesheet
 
-Turned on by default, but has no effect unless C<html_full_page> is also
+Turned on by default, but has no effect unless L</html_full_page> is also
 enabled.
 
-This causes the CSS stylesheet defining the colours to be used
+This causes the CSS stylesheet defining the colors to be used
 to render the markup to be be included in the HTML output, in a
-C<E<lt>styleE<gt>> element.  Turn it off to instead use a C<E<lt>linkE<gt>>
+C<< <style> >> element.  Turn it off to instead use a C<< <link> >>
 to reference an external stylesheet (recommended if putting more than one
 page on the web).
 
@@ -586,14 +622,14 @@ Ignored unless C<html_full_page> is enabled and C<html_inline_stylesheet>
 is disabled.
 
 This can be used to supply the URL (relative or absolute) or the stylesheet
-to be referenced from the HTML C<E<lt>linkE<gt>> element in the header.
-If this isn't given it will default to using a C<file:> URL to reference
+to be referenced from the HTML C<< <link> >> element in the header.
+If this isn't given it will default to using a C<file://> URL to reference
 the supplied F<light.css> stylesheet, which is only really useful for testing.
 
 =item xml_root_element
 
 By default this is true.  If set to a false value, XML output will not be
-wrapped in a root element called <syn:syntax>, but will be otherwise the
+wrapped in a root element called C<< <syn:syntax> >>, but will be otherwise the
 same.  This could allow XML output for several files to be concatenated,
 but to make it valid XML a root element must be added.  Disabling this
 option will also remove the binding of the namespace prefix C<syn:>, so
@@ -613,7 +649,7 @@ A reference to an array of options to pass to Vim.  The default options are:
 =item vim_let
 
 A reference to a hash of options to set in Vim before the syntax file
-is loaded.  Each of these is set using the C<:let> command to the value
+is loaded.  Each of these is set using the C<let> command to the value
 specified.  No escaping is done on the values, they are executed exactly
 as specified.
 
@@ -630,50 +666,54 @@ These settings can be modified later with the C<vim_let()> method.
 
 =back
 
-=item vim_let(I<name> =E<gt> I<value>, ...)
+=head2 vim_let
+
+  $tvc->vim_let( %variables );
+  $tvc->vim_let( perl_no_extended_vars => 1 );
 
 Change the options that are set with the Vim C<let> command when Vim
-is run.  See C<new()> for details.
+is run.  See L</new> for details.
 
-=item syntax_mark_file(I<file>, I<options...>)
+=head2 syntax_mark_file
+
+  $tvc->syntax_mark_file( $file, %options )
 
 Mark up the specified file.  Subsequent calls to the output methods will then
 return the markup.  It is not necessary to call this if a C<file> or C<string>
-option was passed to C<new()>.
+option was passed to L</new>.
 
 Returns the object it was called on, so an output method can be called
 on it directly:
 
-   my $syntax = Text::VimColor->new(
-      vim_command => '/usr/local/bin/special-vim',
-   );
+  foreach (@files) {
+    print $tvc->syntax_mark_file($_)->html;
+  }
 
-   foreach (@files) {
-      print $syntax->syntax_mark_file($_)->html;
-   }
-
-You can override the filetype set in new() by passing in a C<filetype>
+You can override the file type set in new() by passing in a C<filetype>
 option, like so:
 
-   $syntax->syntax_mark_file($filename, filetype => 'perl');
+  $tvc->syntax_mark_file($filename, filetype => 'perl');
 
-This option will only affect the syntax colouring for that one call,
+This option will only affect the syntax coloring for that one call,
 not for any subsequent ones on the same object.
 
-=item syntax_mark_string(I<string>, I<options...>)
+=head2 syntax_mark_string
+
+  $tvc->syntax_mark_string($string, %options)
 
 Does the same as C<syntax_mark_file> (see above) but uses a string as input.
-I<string> can also be a reference to a string.
+The I<string> can also be a reference to a string.
+
 Returns the object it was called on.  Supports the C<filetype> option
 just as C<syntax_mark_file> does.
 
-=item ansi()
+=head2 ansi
 
 Return the string marked with ANSI escape sequences (using L<Term::ANSIColor>)
-based on the Vim syntax colouring of the input file.
+based on the Vim syntax coloring of the input file.
 
 This is the default format for the included L<text-vimcolor> script
-which makes it like a colored version of C<cat>.
+which makes it like a colored version of C<cat(1)>.
 
 You can alter the color scheme using the C<TEXT_VIMCOLOR_ANSI>
 environment variable in the format of C<< "SynGroup=color;" >>.
@@ -681,53 +721,54 @@ For example:
 
    TEXT_VIMCOLOR_ANSI='Comment=green;Statement = magenta; '
 
-=item html()
+=head2 html
 
-Return XHTML markup based on the Vim syntax colouring of the input file.
+Return XHTML markup based on the Vim syntax coloring of the input file.
 
 Unless the C<html_full_page> option is set, this will only return a fragment
 of HTML, which can then be incorporated into a full page.  The fragment
-will be valid as either HTML and XHTML.
+will be valid as either HTML or XHTML.
 
-The only markup used for the actual text will be C<E<lt>spanE<gt>> elements
-wrapped round appropriate pieces of text.  Each one will have a C<class>
+The only markup used for the actual text will be C<< <span> >> elements
+wrapped around appropriate pieces of text.  Each one will have a C<class>
 attribute set to a name which can be tied to a foreground and background
 color in a stylesheet.  The class names used will have the prefix C<syn>,
-for example C<synComment>.  For the full list see the section
-HIGHLIGHTING TYPES below.
+for example C<synComment>.
+For the full list see L</HIGHLIGHTING TYPES>.
 
-=item xml()
+=head2 xml
 
 Returns markup in a simple XML vocabulary.  Unless the C<xml_root_element>
 option is turned off (it's on by default) this will produce a complete XML
-document, with all the markup inside a C<E<lt>syntaxE<gt>> element.
+document, with all the markup inside a C<< <syntax> >> element.
 
 This XML output can be transformed into other formats, either using programs
 which read it with an XML parser, or using XSLT.  See the
-text-vimcolor(1) program for an example of how XSLT can be used with
+L<text-vimcolor>(1) program for an example of how XSLT can be used with
 XSL-FO to turn this into PDF.
 
 The markup will consist of mixed content with elements wrapping pieces
 of text which Vim recognized as being of a particular type.  The names of
-the elements used are the ones listed in the HIGHLIGHTING TYPES section
+the elements used are the ones listed in L</HIGHLIGHTING TYPES>.
 below.
 
-The C<E<lt>syntaxE<gt>> element will declare the namespace for all the
-elements prodeced, which will be C<http://ns.laxan.com/text-vimcolor/1>.
+The C<< <syntax> >> element will declare the namespace for all the
+elements produced, which will be C<http://ns.laxan.com/text-vimcolor/1>.
 It will also have an attribute called C<filename>, which will be set to the
 value returned by the C<input_filename> method, if that returns something
 other than undef.
 
 The XML namespace is also available as C<$Text::VimColor::NAMESPACE_ID>.
 
-=item marked()
+=head2 marked
 
 This output function returns the marked-up text in the format which the module
 stores it in internally.  The data looks like this:
 
    use Data::Dumper;
-   print Dumper($syntax->marked);
+   print Dumper($tvc->marked);
 
+   # produces
    $VAR1 = [
       [ 'Statement', 'my' ],
       [ '', ' ' ],
@@ -736,17 +777,28 @@ stores it in internally.  The data looks like this:
        ...
    ];
 
-The C<marked()> method returns a reference to an array.  Each item in the
+This method returns a reference to an array.  Each item in the
 array is itself a reference to an array of two items: the first is one of
-the names listed in the HIGHLIGHTING TYPES section below (or the empty
-string if none apply), and the second is the actual piece of text.
+the names listed in L<HIGHLIGHTING TYPES> (or an empty string if none apply),
+and the second is the actual piece of text.
 
-=item input_filename()
+=head2 input_filename
 
 Returns the filename of the input file, or undef if a filename wasn't
 specified.
 
-=back
+=head2 dist_file
+
+  my $full_path = Text::VimColor->dist_file($file);
+  my $xsl = $tvc->dist_file('light.xsl');
+
+Returns the path to the specified file that is part of the C<Text-VimColor> dist
+(for example, F<mark.vim> or F<light.css>).
+
+Can be called as an instance method or a class method.
+
+This is a thin wrapper around L<File::ShareDir/dist_file>
+and is mostly for internal use.
 
 =head1 HIGHLIGHTING TYPES
 
@@ -802,18 +854,24 @@ Todo
 
 =back
 
-=head1 RELATED  MODULES
+=head1 RELATED MODULES
 
-These modules allow Text::VimColor to be used more easily in particular
+These modules allow C<Text::VimColor> to be used more easily in particular
 environments:
 
 =over 4
 
-=item L<Apache::VimColor>
+=item *
 
-=item L<Kwiki::VimMode>
+L<Apache::VimColor>
 
-=item L<Template-Plugin-VimColor>
+=item *
+
+L<Kwiki::VimMode>
+
+=item *
+
+L<Template-Plugin-VimColor>
 
 =back
 
@@ -845,7 +903,7 @@ Quite a few, actually:
 
 Apparently this module doesn't always work if run from within a 'gvim'
 window, although I've been unable to reproduce this so far.
-CPAN bug #11555.
+CPAN RT #11555.
 
 =item *
 
@@ -869,29 +927,112 @@ who knows Windows can sort it out let me know.
 
 =back
 
-=head1 AUTHOR
+=head1 SUPPORT
 
-Geoff Richards E<lt>qef@laxan.comE<gt>
+=head2 Perldoc
 
-Currently maintained by Randy Stauner C<< rwstauner@cpan.org >>.
+You can find documentation for this module with the perldoc command.
+
+  perldoc Text::VimColor
+
+=head2 Websites
+
+The following websites have more information about this module, and may be of help to you. As always,
+in addition to those websites please use your favorite search engine to discover more resources.
+
+=over 4
+
+=item *
+
+Search CPAN
+
+The default CPAN search engine, useful to view POD in HTML format.
+
+L<http://search.cpan.org/dist/Text-VimColor>
+
+=item *
+
+RT: CPAN's Bug Tracker
+
+The RT ( Request Tracker ) website is the default bug/issue tracking system for CPAN.
+
+L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Text-VimColor>
+
+=item *
+
+CPAN Ratings
+
+The CPAN Ratings is a website that allows community ratings and reviews of Perl modules.
+
+L<http://cpanratings.perl.org/d/Text-VimColor>
+
+=item *
+
+CPAN Testers
+
+The CPAN Testers is a network of smokers who run automated tests on uploaded CPAN distributions.
+
+L<http://www.cpantesters.org/distro/T/Text-VimColor>
+
+=item *
+
+CPAN Testers Matrix
+
+The CPAN Testers Matrix is a website that provides a visual overview of the test results for a distribution on various Perls/platforms.
+
+L<http://matrix.cpantesters.org/?dist=Text-VimColor>
+
+=item *
+
+CPAN Testers Dependencies
+
+The CPAN Testers Dependencies is a website that shows a chart of the test results of all dependencies for a distribution.
+
+L<http://deps.cpantesters.org/?module=Text::VimColor>
+
+=back
+
+=head2 Bugs / Feature Requests
+
+Please report any bugs or feature requests by email to C<bug-text-vimcolor at rt.cpan.org>, or through
+the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Text-VimColor>. You will be automatically notified of any
+progress on the request by the system.
+
+=head2 Source Code
+
+
+L<https://github.com/rwstauner/Text-VimColor>
+
+  git clone https://github.com/rwstauner/Text-VimColor.git
+
+=head1 ACKNOWLEDGEMENTS
 
 The Vim script F<mark.vim> is a crufted version of F<2html.vim> by
 Bram Moolenaar E<lt>Bram@vim.orgE<gt> and
 David Ne\v{c}as (Yeti) E<lt>yeti@physics.muni.czE<gt>.
 
-=head1 COPYRIGHT
+=head1 AUTHORS
 
-Copyright 2002-2006, Geoff Richards.
-Copyright 2011 Randy Stauner.
+=over 4
 
-This library is free software; you can redistribute it and/or
-modify it under the same terms as Perl itself.
+=item *
+
+Geoff Richards <qef@laxan.com>
+
+=item *
+
+Randy Stauner <rwstauner@cpan.org>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2002-2006 by Geoff Richards.
+
+This software is copyright (c) 2011 by Randy Stauner.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
 
 =cut
 
-# Local Variables:
-# mode: perl
-# perl-indent-level: 3
-# perl-continued-statement-offset: 3
-# End:
-# vi:ts=3 sw=3 expandtab:

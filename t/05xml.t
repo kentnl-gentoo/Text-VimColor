@@ -1,11 +1,12 @@
+# vim: set ts=2 sts=2 sw=2 expandtab smarttab:
 # Check that the XML output is correct.
 # Also checks that tabs aren't tampered with.
 
 use strict;
 use warnings;
 use Test::More;
-use Text::VimColor;
-require "t/lib/test_env.pm";
+use lib 't/lib';
+use TVC_Test;
 use IO::File;
 
 my $NS = 'http://ns.laxan.com/text-vimcolor/1';
@@ -39,7 +40,7 @@ else {
 # Syntax color a Perl program, and check the XML output for well-formedness
 # and validity.  The tests are run with and without a root element in the
 # output, and with both filename and string as input.
-my $filename = 't/has_tabs.pl';
+my $filename = 't/data/has_tabs.pl';
 my $file = IO::File->new($filename, 'r')
    or die "error opening file '$filename': $!";
 my $data = do { local $/; <$file> };
@@ -143,6 +144,12 @@ sub handle_start
       fail("element <syn:$element> shouldn't have any attributes")
          if keys %attr;
 
+      # HACK: ignore more than a single line of comments at the beginning
+      # of the file (which might be added dynamically during build).
+      # can be removed if this gets merged (or we stop using Prepender):
+      # https://github.com/jquelin/dist-zilla-plugin-prepender/pull/1
+      return if @syntax_types == 1 && $element eq 'Comment';
+
       push @syntax_types, $element;
    }
 }
@@ -168,5 +175,3 @@ sub handle_default
    return unless $s =~ /\S/;
    die "unexpected XML event for text '$s'\n";
 }
-
-# vim:ft=perl ts=3 sw=3 expandtab:

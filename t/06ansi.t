@@ -1,9 +1,10 @@
+# vim: set ts=2 sts=2 sw=2 expandtab smarttab:
 use strict;
 use warnings;
 use Test::More;
-use Text::VimColor;
+use lib 't/lib';
+use TVC_Test;
 use Term::ANSIColor;
-use Path::Class qw( file );
 
 no warnings 'redefine';
 local *Term::ANSIColor::colored = sub {
@@ -12,7 +13,6 @@ local *Term::ANSIColor::colored = sub {
 
 # clear out possible user customizations that could upset the tests
 $ENV{TEXT_VIMCOLOR_ANSI} = '';
-$ENV{HOME} = 't';
 
 plan tests => 2;
 
@@ -35,5 +35,3 @@ sub tag_input {
    my %c = @_;
    return "[$c{Special}]#[] [cyan]Text[][$c{Special}]::[][cyan]VimColor[] [$c{Special}]#[] [$c{Special}]([][$c{Comment}]test[][$c{Special}])[]\n";
 }
-
-# vim:ft=perl ts=3 sw=3 expandtab:

@@ -1,6 +1,19 @@
 Revision history for Text-VimColor
 
-0.12     2011-08-09T19:11:05Z
+0.13      2011-08-15T23:10:00Z
+
+  [Prereqs]
+  - Exit Makefile.PL early if `vim` fails to execute.
+    (Nothing else will work after that.)
+  - Bump required version of Term::ANSIColor to 3.0.
+    (Please let me know if this causes problems for anyone.)
+
+  [Dist Meta Changes]
+  - Convert to Dist::Zilla for releasing
+  - Use File::ShareDir to manage included files consistently
+  - Simplify and organize documentation and tests
+
+0.12     2011-08-09T19:33:16Z
 
   [Enhancements]
   - Add Term::ANSIColor support
