@@ -147,13 +147,15 @@ __END__
 XSL XSLT XSL-FO pdf inline stylesheet filetype --filetype --unlet --inline
 --no-inline-stylesheet text-vimcolor
 
+=encoding utf-8
+
 =head1 NAME
 
 text-vimcolor - Use Text:VimColor from the command line
 
 =head1 VERSION
 
-version 0.13
+version 0.14
 
 =head1 SYNOPSIS
 

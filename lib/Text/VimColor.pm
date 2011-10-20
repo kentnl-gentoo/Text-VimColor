@@ -13,9 +13,15 @@ use warnings;
 use strict;
 
 package Text::VimColor;
+{
+  $Text::VimColor::VERSION = '0.14';
+}
+BEGIN {
+  $Text::VimColor::AUTHORITY = 'cpan:RWSTAUNER';
+}
 # ABSTRACT: Syntax highlight text using Vim
-our $VERSION = '0.13'; # VERSION
-our $AUTHORITY = 'cpan:RWSTAUNER'; # AUTHORITY
+# VERSION
+# AUTHORITY
 
 use IO::File;
 use File::Copy qw( copy );
@@ -443,7 +449,13 @@ sub _run
    else {
       defined $pid
          or croak "error forking to run $prog: $!";
-      tied $_ and untie $_ for *STDOUT, *STDERR, *STDIN;
+
+      {
+        no warnings 'untie';
+        # if tied we may get "Not a GLOB reference" errors (or other issues).
+        tied $_ and untie $_ for *STDIN, *STDOUT, *STDERR;
+      }
+
       ## no critic (TwoArgOpen)
       open STDIN, '/dev/null';
       open STDOUT, '>/dev/null';
@@ -471,13 +483,15 @@ XSL XSLT XSL-FO pdf inline stylesheet filetype PreProc Todo Moolenaar cpan
 testmatrix url annocpan anno bugtracker rt cpants kwalitee diff irc mailto
 metadata placeholders
 
+=encoding utf-8
+
 =head1 NAME
 
 Text::VimColor - Syntax highlight text using Vim
 
 =head1 VERSION
 
-version 0.13
+version 0.14
 
 =head1 SYNOPSIS
 

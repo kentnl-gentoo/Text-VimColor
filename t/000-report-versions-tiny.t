@@ -61,6 +61,8 @@ eval { $v .= pmver('IO::File','any version') };
 eval { $v .= pmver('Path::Class','any version') };
 eval { $v .= pmver('Term::ANSIColor','3') };
 eval { $v .= pmver('Test::More','0.88') };
+eval { $v .= pmver('strict','any version') };
+eval { $v .= pmver('warnings','any version') };
 
 
 

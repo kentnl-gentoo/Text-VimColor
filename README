@@ -1,9 +1,11 @@
 
 
 This archive contains the distribution Text-VimColor,
-version 0.13:
+version 0.14:
 
   Syntax highlight text using Vim
+
+This software is copyright (c) 2002-2006 by Geoff Richards.
 
 This software is copyright (c) 2011 by Randy Stauner.
 

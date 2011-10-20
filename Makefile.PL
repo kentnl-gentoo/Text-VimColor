@@ -11,36 +11,38 @@ install_share dist => "share";
 
 
 my %WriteMakefileArgs = (
-  'ABSTRACT' => 'Syntax highlight text using Vim',
-  'AUTHOR' => 'Geoff Richards <qef@laxan.com>, Randy Stauner <rwstauner@cpan.org>',
-  'BUILD_REQUIRES' => {
-    'Exporter' => '0',
-    'File::Find' => '0',
-    'Test::More' => '0.88'
+  "ABSTRACT" => "Syntax highlight text using Vim",
+  "AUTHOR" => "Geoff Richards <qef\@laxan.com>, Randy Stauner <rwstauner\@cpan.org>",
+  "BUILD_REQUIRES" => {
+    "Exporter" => 0,
+    "File::Find" => 0,
+    "Test::More" => "0.88"
   },
-  'CONFIGURE_REQUIRES' => {
-    'ExtUtils::MakeMaker' => '6.30',
-    'File::ShareDir::Install' => '0.03'
+  "CONFIGURE_REQUIRES" => {
+    "ExtUtils::MakeMaker" => "6.30",
+    "File::ShareDir::Install" => "0.03"
   },
-  'DISTNAME' => 'Text-VimColor',
-  'EXE_FILES' => [
-    'bin/text-vimcolor'
+  "DISTNAME" => "Text-VimColor",
+  "EXE_FILES" => [
+    "bin/text-vimcolor"
   ],
-  'LICENSE' => 'perl',
-  'NAME' => 'Text::VimColor',
-  'PREREQ_PM' => {
-    'Carp' => '0',
-    'File::Copy' => '0',
-    'File::ShareDir' => '0',
-    'File::Temp' => '0',
-    'Getopt::Long' => '0',
-    'IO::File' => '0',
-    'Path::Class' => '0',
-    'Term::ANSIColor' => '3'
+  "LICENSE" => "perl",
+  "NAME" => "Text::VimColor",
+  "PREREQ_PM" => {
+    "Carp" => 0,
+    "File::Copy" => 0,
+    "File::ShareDir" => 0,
+    "File::Temp" => 0,
+    "Getopt::Long" => 0,
+    "IO::File" => 0,
+    "Path::Class" => 0,
+    "Term::ANSIColor" => 3,
+    "strict" => 0,
+    "warnings" => 0
   },
-  'VERSION' => '0.13',
-  'test' => {
-    'TESTS' => 't/*.t'
+  "VERSION" => "0.14",
+  "test" => {
+    "TESTS" => "t/*.t"
   }
 );
 

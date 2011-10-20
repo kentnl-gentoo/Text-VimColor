@@ -7,6 +7,7 @@ META.yml
 Makefile.PL
 README
 bin/text-vimcolor
+dist.ini
 lib/Text/VimColor.pm
 share/light.css
 share/light.xsl
@@ -37,6 +38,7 @@ t/data/tvctestsyn.html
 t/data/tvctestsyn.txt
 t/data/tvctestsyn.xml
 t/lib/TVC_Test.pm
+t/untie-std-handles.t
 xt/author/critic.t
 xt/author/pod-spell.t
 xt/release/cpan-changes.t
