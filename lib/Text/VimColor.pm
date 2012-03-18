@@ -14,14 +14,12 @@ use strict;
 
 package Text::VimColor;
 {
-  $Text::VimColor::VERSION = '0.14';
+  $Text::VimColor::VERSION = '0.15';
 }
 BEGIN {
   $Text::VimColor::AUTHORITY = 'cpan:RWSTAUNER';
 }
 # ABSTRACT: Syntax highlight text using Vim
-# VERSION
-# AUTHORITY
 
 use IO::File;
 use File::Copy qw( copy );
@@ -69,7 +67,7 @@ our %ANSI_COLORS = (
 );
 
 # Set to true to print the command line used to run Vim.
-our $DEBUG = 0;
+our $DEBUG = $ENV{TEXT_VIMCOLOR_DEBUG};
 
 sub new
 {
@@ -148,18 +146,27 @@ sub ansi
    my $syntax = $self->marked;
 
    require Term::ANSIColor;
-   # allow the environment to overwrite;
-   my %colors = (%ANSI_COLORS,
-      split(/\s*[=;]\s*/, $ENV{TEXT_VIMCOLOR_ANSI} || '')
-   );
+  # allow the environment to overwrite:
+  my %colors = (
+    %ANSI_COLORS,
+    $ENV{TEXT_VIMCOLOR_ANSI} ? split(/\s*[=;]\s*/, $ENV{TEXT_VIMCOLOR_ANSI}) : ()
+  );
 
-   my $ansi = '';
-   foreach (@$syntax) {
-      $ansi .= $_->[1], next
-         if $_->[0] eq '';
+  local $_;
 
-      $ansi .= Term::ANSIColor::colored([ $colors{ $_->[0] } ], $_->[1]);
-   }
+  # Term::ANSIColor didn't support bright values until version 3
+  # Handle this here to cover custom colors and not require T::AC until needed
+  if( Term::ANSIColor->VERSION < 3 ){
+    s/bright_// for values %colors;
+  }
+
+  # compared to join/map or foreach/my this benched as the fastest:
+  my $ansi = '';
+  for ( @$syntax ){
+    $ansi .= $_->[0] eq ''
+      ? $_->[1]
+      : Term::ANSIColor::colored([ $colors{ $_->[0] } ], $_->[1]);
+  }
 
    return $ansi;
 }
@@ -309,6 +316,10 @@ sub _do_markup
    croak "Text::VimColor syntax script '$vim_syntax_script' not installed"
       unless -f $vim_syntax_script && -r $vim_syntax_script;
 
+   if ($DEBUG) {
+      print STDERR __PACKAGE__."::_do_markup: script: $vim_syntax_script\n";
+   }
+
    my $filename = $self->{file};
    my $input_is_temporary = 0;
    if (ref $self->{file}) {
@@ -345,6 +356,7 @@ sub _do_markup
    my $filetype = $self->{filetype};
    my $filetype_set = defined $filetype ? ":set filetype=$filetype" : '';
    my $vim_let = $self->{vim_let};
+   # TODO: make this script a method and print it for debugging
    print $script_fh (map { ":let $_=$vim_let->{$_}\n" }
                      grep { defined $vim_let->{$_} }
                      keys %$vim_let),
@@ -469,19 +481,13 @@ sub _run
 1;
 
 
-# Local Variables:
-# mode: perl
-# perl-indent-level: 3
-# perl-continued-statement-offset: 3
-# End:
-
 __END__
 =pod
 
 =for :stopwords Geoff Richards Randy Stauner ACKNOWLEDGEMENTS ansi html xml DOCTYPE XHTML
-XSL XSLT XSL-FO pdf inline stylesheet filetype PreProc Todo Moolenaar cpan
-testmatrix url annocpan anno bugtracker rt cpants kwalitee diff irc mailto
-metadata placeholders
+XSL XSLT XSL-FO pdf inline stylesheet filetype PreProc Todo TODO syntaxes
+Moolenaar cpan testmatrix url annocpan anno bugtracker rt cpants kwalitee
+diff irc mailto metadata placeholders metacpan
 
 =encoding utf-8
 
@@ -491,7 +497,7 @@ Text::VimColor - Syntax highlight text using Vim
 
 =head1 VERSION
 
-version 0.14
+version 0.15
 
 =head1 SYNOPSIS
 
@@ -936,8 +942,45 @@ Vim is run.
 
 =item *
 
+This requires vim version 6 (it has since 2003).
+There may be workarounds to support version 5 (technically 5.4+).
+Upgrading vim is a much better idea, but if you need support
+for older versions please file a ticket (with patches if possible).
+
+=item *
+
 It doesn't work on Windows.  I am unlikely to fix this, but if anyone
 who knows Windows can sort it out let me know.
+
+=back
+
+=head1 TODO
+
+=over 4
+
+=item *
+
+L<https://github.com/rwstauner/Text-VimColor/issues/1>
+
+=item *
+
+option for 'set number'
+
+=item *
+
+extra_vim_options (additional instead of overwriting defaults)
+
+=item *
+
+make global vars available through methods
+
+=item *
+
+test constructor and then simplify it: copy default values into it
+
+=item *
+
+list available syntaxes? (see L<IkiWiki::Plugin::syntax::Vim>)
 
 =back
 

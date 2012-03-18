@@ -1,5 +1,28 @@
 Revision history for Text-VimColor
 
+0.15      2012-03-18T23:43:36Z
+
+  [Performance]
+  - Remove extraneous vim statement that caused delays on
+    some files.  Thanks to Joe Mullally (jhackworth)
+    for finding this and for the vim profiling tips (gh-2).
+
+  [Installation]
+  - Abort Makefile.PL before writing Makefile if minimum vim not found
+  - Try not to hang the installation if an old vim is found
+  - Lower Term::ANSIColor requirement to 1.03
+    and make bright colors normal if Term::ANSIColor version < 3
+
+  [Documentation]
+  - Document that the minimum vim version is 6.
+    (It has been that way since 2003.)
+
+  [Testing]
+  - Allow debugging based on TEXT_VIMCOLOR_DEBUG env var
+  - Attempt to make tests more portable across vim versions
+    (addressing rt-75829 and a few sparse smoke reports).
+  - Reorganize the test suite increasing coverage and number.
+
 0.14      2011-10-20T17:09:53Z
 
   - Add test to confirm fix of rt-50646.

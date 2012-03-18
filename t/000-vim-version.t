@@ -2,20 +2,15 @@
 
 use strict;
 use warnings;
-use Test::More;
+use Test::More tests => 1;
+use inc::VimCommand;
 
-plan tests => 1;
+# Include the vim version and feature list in test reports.
 
-# we could parse version with something like:
-# vim -e -s --cmd 'exe "!echo " . version' --cmd q
+diag sprintf "vim --version\n\n%s\n",
+  # use the function to portably combine STDOUT and STDERR
+  # (since we don't know for sure which one we'll get).
+  (eval { inc::VimCommand::vim('--version') } || $@);
 
-my $command = 'vim --version';
-# is 2>&1 portable?
-my @output  = qx/$command 2>&1/;
-my $status  = $?;
-
-# print out the vim version for test reports
-diag( $command, "\n", @output );
-
-# does vim always exit with 0 for --version?
-ok $status == 0, $command;
+# exit status varies, just ok() something
+ok 1, 'vim --version';

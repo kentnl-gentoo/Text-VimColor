@@ -1,0 +1,134 @@
+SCRIPT  /data/raptor/devel/projects/perl/Text-VimColor/share/mark.vim
+Sourced 1 time
+Total time:   3.038078
+ Self time:   3.016922
+
+count  total (s)   self (s)
+                            " mark.vim - turn Vim syntax highlighting into an ad-hoc markup language that
+                            " can be parsed by the Text::VimColor Perl module.
+                            "
+                            " Author: Geoff Richards <qef@laxan.com>
+                            " Maintainer: Randy Stauner <rwstauner@cpan.org>
+                            " Based loosely on 2html.vim, by Bram Moolenaar <Bram@vim.org>,
+                            "   modified by David Ne\v{c}as (Yeti) <yeti@physics.muni.cz>.
+                            "
+                            " vim versions/features (according to docs):
+                            " 5.2 - setline
+                            " 5.4 - filetype
+                            " 6.0 - wincmd
+                            " 7.0 - lists ([], add())
+                            
+                            " TODO: try exe "set report=" . s:end
+    1              0.000005 set report=1000000
+                            
+                            " For some reason (I'm sure it used to work) we now need to get Vim
+                            " to make another attempt to detect the filetype if it wasn't set
+                            " explicitly.
+    1              0.000006 if !strlen(&filetype)
+    1   0.000193   0.000006    filetype detect
+    1              0.000001 endif
+    1              0.000030 syn on
+                            
+                            " Set up the output buffer.
+    1   0.000097   0.000096 new
+    1              0.000003 set modifiable
+    1              0.000002 set paste
+                            
+                            " Expand tabs. Without this they come out as '^I'.
+    1              0.000028 set isprint+=9
+                            
+    1   0.000006   0.000004 wincmd p
+    1              0.000005 let s:end = line("$")
+                            
+                            " detect present features and do some preparations
+                            
+    1              0.000002 let s:use_list = 0
+                            " exists("*add")
+    1              0.000001 if s:use_list
+                              let s:lines = []
+                            else
+    1              0.000002   let s:use_setline = 1
+    1              0.000002   if s:use_setline
+    1              0.000002     let s:use_wincmd = 0
+                                " move to mark window
+    1              0.000001     if s:use_wincmd
+                                  wincmd p
+                                else
+    1              0.000030       exe "normal! \<C-W>p"
+    1              0.000001     endif
+                            
+                                " pre-fill window with the required number of lines so setline() will work
+    1              0.036166     exe "normal " . (s:end - 1) . "o"
+                               
+                                " move back
+    1              0.000009     if s:use_wincmd
+                                  command PrevWin wincmd p
+                                else
+    1              0.000010       command PrevWin exe "normal! \<C-W>p"
+    1              0.000001     endif
+    1   0.000024   0.000020     PrevWin
+    1              0.000001   endif
+    1              0.000001 endif
+                            
+                            " Loop over all lines in the original text
+    1              0.000005 let s:lnum = 1
+ 8101              0.010136 while s:lnum <= s:end
+                            
+                              " Get the current line
+ 8100              0.024870   let s:line = getline(s:lnum)
+ 8100              0.021367   let s:len = strlen(s:line)
+ 8100              0.011162   let s:new = ""
+                            
+                              " Loop over each character in the line
+ 8100              0.009692   let s:col = 1
+12847              0.014543   while s:col <= s:len
+11183              0.019223     let s:startcol = s:col " The start column for processing text
+11183              0.733043     let s:id = synID(s:lnum, s:col, 1)
+11183              0.029593     let s:col = s:col + 1
+                                " Speed loop (it's small - that's the trick)
+                                " Go along till we find a change in synID
+735054              1.394758     while s:col <= s:len && s:id == synID(s:lnum, s:col, 1) | let s:col = s:col + 1 | endwhile
+                            
+                                " Output the text with the same synID, with class set to c{s:id}
+11183              0.027085     let s:id = synIDtrans(s:id)
+11183              0.032024     let s:name = synIDattr(s:id, 'name')
+11183              0.163764     let s:new = s:new . '>' . s:name . '>' . substitute(substitute(substitute(strpart(s:line, s:startcol - 1, s:col - s:startcol), '&', '\&a', 'g'), '<', '\&l', 'g'), '>', '\&g', 'g') . '<' . s:name . '<'
+                            
+11183              0.015553     if s:col > s:len
+ 6436              0.004976       break
+                                endif
+ 4747              0.005298   endwhile
+                            
+                              " I don't know how to make a function alias (like $func = \&add; $func->())
+                              " and I can't define add() (lower-case 'a') when it isn't available.
+                              " Using an 'if' here is 5x faster than an extra function call.
+ 8100              0.008001   if s:use_list
+                                call add(s:lines, s:new)
+                              elseif s:use_setline
+ 8100              0.007825     if s:use_wincmd
+                                  wincmd p
+                                else
+ 8100   0.066083   0.059879       exe "normal! \<C-W>p"
+ 8100              0.006779     endif
+ 8100              0.039958     call setline(s:lnum, s:new)
+ 8100   0.079284   0.067552     PrevWin
+ 8100              0.006379   else
+                                exe "normal \<C-W>pa" . strtrans(s:new) . "\n\e\<C-W>p"
+                                +
+                              endif
+                            
+ 8100              0.023309   let s:lnum = s:lnum + 1
+ 8100              0.007112 endwhile
+                            
+                            " move to out marked window
+                            
+    1              0.000002 if s:use_list
+                              wincmd p
+                              call setline(1, s:lines)
+                              unlet s:lines
+                            elseif !s:use_setline
+                              exe "normal! \<C-W>p"
+                              " chop line added by last exe
+                              normal dd
+                            endif
+

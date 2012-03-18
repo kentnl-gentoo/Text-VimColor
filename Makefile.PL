@@ -4,6 +4,7 @@ use warnings;
 
 use 5.006;
 
+use inc::VimCommand;
 use ExtUtils::MakeMaker 6.30;
 
 use File::ShareDir::Install;
@@ -36,11 +37,11 @@ my %WriteMakefileArgs = (
     "Getopt::Long" => 0,
     "IO::File" => 0,
     "Path::Class" => 0,
-    "Term::ANSIColor" => 3,
+    "Term::ANSIColor" => "1.03",
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.14",
+  "VERSION" => "0.15",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -63,13 +64,12 @@ unless ( eval { ExtUtils::MakeMaker->VERSION(6.56) } ) {
 delete $WriteMakefileArgs{CONFIGURE_REQUIRES}
   unless eval { ExtUtils::MakeMaker->VERSION(6.52) };
 
-system("vim -e -s --cmd quit") == 0
-  or die "\nCannot install without \"vim\" command\n\n";
-
 WriteMakefile(%WriteMakefileArgs);
 
+{
 package
 MY;
 use File::ShareDir::Install qw(postamble);
+}
 
 

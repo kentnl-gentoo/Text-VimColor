@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!/usr/local/bin/perl
 # vim: set ts=2 sts=2 sw=2 expandtab smarttab:
 #
 # This file is part of Text-VimColor
@@ -14,6 +14,7 @@
 # ABSTRACT: Use Text:VimColor from the command line
 
 use strict;
+use warnings;
 
 use Text::VimColor;
 use Getopt::Long;
@@ -155,7 +156,7 @@ text-vimcolor - Use Text:VimColor from the command line
 
 =head1 VERSION
 
-version 0.14
+version 0.15
 
 =head1 SYNOPSIS
 

@@ -1,0 +1,93 @@
+SCRIPT  /data/raptor/devel/projects/perl/Text-VimColor/share/mark.vim
+Sourced 1 time
+Total time:   3.140003
+ Self time:   3.117684
+
+count  total (s)   self (s)
+                            " mark.vim - turn Vim syntax highlighting into an ad-hoc markup language that
+                            " can be parsed by the Text::VimColor Perl module.
+                            "
+                            " Author: Geoff Richards <qef@laxan.com>
+                            " Maintainer: Randy Stauner <rwstauner@cpan.org>
+                            " Based loosely on 2html.vim, by Bram Moolenaar <Bram@vim.org>,
+                            "   modified by David Ne\v{c}as (Yeti) <yeti@physics.muni.cz>.
+                            
+                            " TODO: try exe "set report=" . s:end
+    1              0.000006 set report=1000000
+                            
+                            " For some reason (I'm sure it used to work) we now need to get Vim
+                            " to make another attempt to detect the filetype if it wasn't set
+                            " explicitly.
+    1              0.000006 if !strlen(&filetype)
+    1   0.000210   0.000005    filetype detect
+    1              0.000001 endif
+    1              0.000032 syn on
+                            
+                            " Set up the output buffer.
+    1   0.000097   0.000096 new
+    1              0.000004 set modifiable
+    1              0.000002 set paste
+                            
+                            " Expand tabs. Without this they come out as '^I'.
+    1              0.000027 set isprint+=9
+                            
+    1   0.000007   0.000006 wincmd p
+    1              0.000005 let s:end = line("$")
+                            
+    1              0.000002 let s:collect = 0 "(version >= 700)
+    1              0.000001 if s:collect
+                              let s:lines = []
+                            else
+    1   0.000002   0.000001   wincmd p " move to mark window
+                              " pre-fill window with the required number of lines so setline() will work
+    1              0.036575   exe "normal " . (s:end - 1) . "o"
+    1   0.000017   0.000012   wincmd p
+    1              0.000002 endif
+                            
+                            " Loop over all lines in the original text
+    1              0.000008 let s:lnum = 1
+ 8101              0.010443 while s:lnum <= s:end
+                            
+                              " Get the current line
+ 8100              0.025370   let s:line = getline(s:lnum)
+ 8100              0.021560   let s:len = strlen(s:line)
+ 8100              0.011930   let s:new = ""
+                            
+                              " Loop over each character in the line
+ 8100              0.010242   let s:col = 1
+12847              0.016054   while s:col <= s:len
+11183              0.020640     let s:startcol = s:col " The start column for processing text
+11183              0.798360     let s:id = synID(s:lnum, s:col, 1)
+11183              0.033105     let s:col = s:col + 1
+                                " Speed loop (it's small - that's the trick)
+                                " Go along till we find a change in synID
+735054              1.514655     while s:col <= s:len && s:id == synID(s:lnum, s:col, 1) | let s:col = s:col + 1 | endwhile
+                            
+                                " Output the text with the same synID, with class set to c{s:id}
+11183              0.029665     let s:id = synIDtrans(s:id)
+11183              0.035001     let s:name = synIDattr(s:id, 'name')
+11183              0.175918     let s:new = s:new . '>' . s:name . '>' . substitute(substitute(substitute(strpart(s:line, s:startcol - 1, s:col - s:startcol), '&', '\&a', 'g'), '<', '\&l', 'g'), '>', '\&g', 'g') . '<' . s:name . '<'
+                            
+11183              0.017434     if s:col > s:len
+ 6436              0.005447       break
+                                endif
+ 4747              0.005828   endwhile
+                            
+ 8100              0.008480   if s:collect
+                                call add(s:lines, s:new)
+                              else
+ 8100   0.037497   0.030472     wincmd p
+ 8100              0.040894     call setline(s:lnum, s:new)
+ 8100   0.029182   0.017203     wincmd p
+ 8100              0.006789   endif
+                            
+ 8100              0.024247   let s:lnum = s:lnum + 1
+ 8100              0.007654 endwhile
+                            
+    1   0.000002   0.000001 wincmd p
+                            
+    1              0.000002 if s:collect
+                              call setline(1, s:lines)
+                              unlet s:lines
+                            endif
+
