@@ -58,6 +58,7 @@ eval { $v .= pmver('File::ShareDir::Install','0.03') };
 eval { $v .= pmver('File::Temp','any version') };
 eval { $v .= pmver('Getopt::Long','any version') };
 eval { $v .= pmver('IO::File','any version') };
+eval { $v .= pmver('IPC::Open3','any version') };
 eval { $v .= pmver('Path::Class','any version') };
 eval { $v .= pmver('Term::ANSIColor','3') };
 eval { $v .= pmver('Test::More','0.88') };

@@ -35,7 +35,12 @@
       "configure" : {
          "requires" : {
             "ExtUtils::MakeMaker" : "6.30",
-            "File::ShareDir::Install" : "0.03"
+            "File::ShareDir::Install" : "0.03",
+            "File::Temp" : "0",
+            "IO::File" : "0",
+            "IPC::Open3" : "0",
+            "strict" : "0",
+            "warnings" : "0"
          }
       },
       "runtime" : {
@@ -67,7 +72,7 @@
    "provides" : {
       "Text::VimColor" : {
          "file" : "lib/Text/VimColor.pm",
-         "version" : "0.15"
+         "version" : "0.16"
       }
    },
    "release_status" : "stable",
@@ -83,7 +88,7 @@
          "web" : "https://github.com/rwstauner/Text-VimColor"
       }
    },
-   "version" : "0.15",
+   "version" : "0.16",
    "x_Dist_Zilla" : {
       "plugins" : [
          {

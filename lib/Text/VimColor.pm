@@ -14,7 +14,7 @@ use strict;
 
 package Text::VimColor;
 {
-  $Text::VimColor::VERSION = '0.15';
+  $Text::VimColor::VERSION = '0.16';
 }
 BEGIN {
   $Text::VimColor::AUTHORITY = 'cpan:RWSTAUNER';
@@ -497,7 +497,7 @@ Text::VimColor - Syntax highlight text using Vim
 
 =head1 VERSION
 
-version 0.15
+version 0.16
 
 =head1 SYNOPSIS
 

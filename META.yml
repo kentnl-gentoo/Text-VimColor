@@ -10,6 +10,11 @@ build_requires:
 configure_requires:
   ExtUtils::MakeMaker: 6.30
   File::ShareDir::Install: 0.03
+  File::Temp: 0
+  IO::File: 0
+  IPC::Open3: 0
+  strict: 0
+  warnings: 0
 dynamic_config: 0
 generated_by: 'Dist::Zilla version 4.300010, CPAN::Meta::Converter version 2.120630'
 license: perl
@@ -33,7 +38,7 @@ no_index:
 provides:
   Text::VimColor:
     file: lib/Text/VimColor.pm
-    version: 0.15
+    version: 0.16
 recommends:
   Term::ANSIColor: 3
 requires:
@@ -52,7 +57,7 @@ resources:
   bugtracker: http://rt.cpan.org/Public/Dist/Display.html?Name=Text-VimColor
   homepage: https://github.com/rwstauner/Text-VimColor
   repository: https://github.com/rwstauner/Text-VimColor.git
-version: 0.15
+version: 0.16
 x_Dist_Zilla:
   plugins:
     -

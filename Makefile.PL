@@ -21,7 +21,12 @@ my %WriteMakefileArgs = (
   },
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => "6.30",
-    "File::ShareDir::Install" => "0.03"
+    "File::ShareDir::Install" => "0.03",
+    "File::Temp" => 0,
+    "IO::File" => 0,
+    "IPC::Open3" => 0,
+    "strict" => 0,
+    "warnings" => 0
   },
   "DISTNAME" => "Text-VimColor",
   "EXE_FILES" => [
@@ -41,7 +46,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.15",
+  "VERSION" => "0.16",
   "test" => {
     "TESTS" => "t/*.t"
   }
