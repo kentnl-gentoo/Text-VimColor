@@ -1,5 +1,15 @@
 Revision history for Text-VimColor
 
+0.18      2012-07-21T02:22:55Z
+
+  [Bug Fix]
+  - bin/text-vimcolor: Exit after printing usage when --help is specified
+    (previous version continued to wait for STDIN).
+    Thanks to Vyacheslav Matyukhin for the pull req (gh-6).
+
+  [Installaion]
+  - Try to show any available version information before aborting Makefile.PL
+
 0.17      2012-03-22T02:49:27Z
 
   - Minor installation and test fixes for older systems

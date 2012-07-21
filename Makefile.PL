@@ -16,7 +16,10 @@ my %WriteMakefileArgs = (
   "AUTHOR" => "Geoff Richards <qef\@laxan.com>, Randy Stauner <rwstauner\@cpan.org>",
   "BUILD_REQUIRES" => {
     "Exporter" => 0,
+    "ExtUtils::MakeMaker" => 0,
     "File::Find" => 0,
+    "File::Spec::Functions" => 0,
+    "List::Util" => 0,
     "Test::More" => "0.88"
   },
   "CONFIGURE_REQUIRES" => {
@@ -46,7 +49,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.17",
+  "VERSION" => "0.18",
   "test" => {
     "TESTS" => "t/*.t"
   }

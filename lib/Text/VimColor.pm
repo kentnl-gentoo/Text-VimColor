@@ -14,8 +14,10 @@ use strict;
 
 package Text::VimColor;
 {
-  $Text::VimColor::VERSION = '0.17';
+  $Text::VimColor::VERSION = '0.18';
 }
+# git description: v0.17-5-g4362758
+
 BEGIN {
   $Text::VimColor::AUTHORITY = 'cpan:RWSTAUNER';
 }
@@ -402,6 +404,9 @@ sub _add_markup
 {
    my ($syntax, $type, $text) = @_;
 
+   # TODO: make this optional
+   # (https://github.com/petdance/vim-perl/blob/master/t/01_highlighting.t#L12)
+
    # Ignore types we don't know about.  At least one syntax file (xml.vim)
    # can produce these.  It happens when a syntax type isn't 'linked' to
    # one of the predefined types.
@@ -484,12 +489,12 @@ sub _run
 __END__
 =pod
 
+=encoding utf-8
+
 =for :stopwords Geoff Richards Randy Stauner ACKNOWLEDGEMENTS ansi html xml DOCTYPE XHTML
 XSL XSLT XSL-FO pdf inline stylesheet filetype PreProc Todo TODO syntaxes
 Moolenaar cpan testmatrix url annocpan anno bugtracker rt cpants kwalitee
 diff irc mailto metadata placeholders metacpan
-
-=encoding utf-8
 
 =head1 NAME
 
@@ -497,7 +502,7 @@ Text::VimColor - Syntax highlight text using Vim
 
 =head1 VERSION
 
-version 0.17
+version 0.18
 
 =head1 SYNOPSIS
 

@@ -66,6 +66,7 @@ if ($usage) {
       "                 don't include the stylesheet in a complete HTML page\n",
       "    --let        set a Vim variable with the Vim :let command\n",
       "    --unlet      turn off default setting of a Vim variable\n";
+    exit 0;
 }
 
 defined $format
@@ -144,11 +145,11 @@ exit 0;
 __END__
 =pod
 
+=encoding utf-8
+
 =for :stopwords Geoff Richards Randy Stauner ACKNOWLEDGEMENTS ansi html xml DOCTYPE XHTML
 XSL XSLT XSL-FO pdf inline stylesheet filetype --filetype --unlet --inline
 --no-inline-stylesheet text-vimcolor
-
-=encoding utf-8
 
 =head1 NAME
 
@@ -156,7 +157,7 @@ text-vimcolor - Use Text:VimColor from the command line
 
 =head1 VERSION
 
-version 0.17
+version 0.18
 
 =head1 SYNOPSIS
 
