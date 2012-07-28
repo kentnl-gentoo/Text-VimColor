@@ -14,9 +14,9 @@ use strict;
 
 package Text::VimColor;
 {
-  $Text::VimColor::VERSION = '0.18';
+  $Text::VimColor::VERSION = '0.19'; # TRIAL
 }
-# git description: v0.17-5-g4362758
+# git description: v0.18-18-g5cfe63e
 
 BEGIN {
   $Text::VimColor::AUTHORITY = 'cpan:RWSTAUNER';
@@ -29,6 +29,8 @@ use File::ShareDir ();
 use File::Temp qw( tempfile );
 use Path::Class qw( file );
 use Carp;
+use IPC::Open3 (); # core
+use Symbol (); # core
 
 # for backward compatibility
 our $SHARED = File::ShareDir::dist_dir('Text-VimColor');
@@ -358,22 +360,48 @@ sub _do_markup
    my $filetype = $self->{filetype};
    my $filetype_set = defined $filetype ? ":set filetype=$filetype" : '';
    my $vim_let = $self->{vim_let};
-   # TODO: make this script a method and print it for debugging
-   print $script_fh (map { ":let $_=$vim_let->{$_}\n" }
-                     grep { defined $vim_let->{$_} }
-                     keys %$vim_let),
-                    ":filetype on\n",
-                    "$filetype_set\n",
-                    ":source $vim_syntax_script\n",
-                    ":write! $out_filename\n",
-                    ":qall!\n";
+
+  # on linux '-s' is fast and '--cmd' adds the 2-second startup delay
+  # are there situations where --cmd is necessary or useful?
+  # XXX: for debugging, may be removed in the future
+  my $use_cmd_opt = $ENV{TEXT_VIMCOLOR_CMD_OPT};
+
+  # Specify filename as argument to command (rather than using :edit in script).
+  # If using --cmd then the filename needs to be in the script.
+  # For some reason windows doesn't seem to like the filename being in the arg list.
+  # Are there other times that this is needed?
+  my $file_as_arg = ($use_cmd_opt || $^O ne 'MSWin32');
+
+  my @script_lines = (
+    map { "$_\n" }
+      # do :edit before :let or the buffer variables may get reset
+      (!$file_as_arg ? ":edit $filename" : ()),
+      (
+        map  { ":let $_=$vim_let->{$_}" }
+        grep { defined  $vim_let->{$_} }
+          keys %$vim_let
+      ),
+      ':filetype on',
+       $filetype_set,
+      ":source $vim_syntax_script",
+      ":write! $out_filename",
+      ':qall!',
+  );
+
+  print STDERR map { __PACKAGE__ . " | $_" } @script_lines if $DEBUG;
+
+   print $script_fh @script_lines;
    close $script_fh;
 
    $self->_run(
       $self->{vim_command},
       @{$self->{vim_options}},
-      $filename,
-      '-s', $script_filename,
+      ($file_as_arg ? $filename : ()),
+      (
+        $use_cmd_opt
+          ? ( '--cmd' => "silent! so $script_filename" )
+          : ( '-s'    => $script_filename )
+      ),
    );
 
    unlink $filename
@@ -435,51 +463,33 @@ sub _run
    my ($self, $prog, @args) = @_;
 
    if ($DEBUG) {
-      ## no critic (MutatingListFunctions)
       print STDERR __PACKAGE__."::_run: $prog " .
-            join(' ', map { s/'/'\\''/g; "'$_'" } @args) . "\n";
+            join(' ', map { "'$_'" } @args) . "\n";
    }
 
-   my ($err_fh, $err_filename) = tempfile();
-   my $old_fh = select($err_fh);
-   $| = 1;
-   select($old_fh);
+  {
+    my ($in, $out) = (Symbol::gensym(), Symbol::gensym());
+    my $err_fh = Symbol::gensym();
 
-   my $pid = fork;
-   if ($pid) {
+    my $pid = IPC::Open3::open3($in, $out, $err_fh, $prog => @args);
+
+    # close these to avoid any ambiguity that might cause this to block
+    # (see also the paragraph about "select" in IPC::Open3)
+    close($in);
+    close($out);
+
+    # read handle before waitpid to avoid hanging on older systems
+    my $errout = do { local $/; <$err_fh> };
+
       my $gotpid = waitpid($pid, 0);
       croak "couldn't run the program '$prog'" if $gotpid == -1;
       my $error = $? >> 8;
       if ($error) {
-         seek $err_fh, 0, 0;
-         my $errout = do { local $/; <$err_fh> };
          $errout =~ s/\n+\z//;
-         close $err_fh;
-         unlink $err_filename;
          my $details = $errout eq '' ? '' :
                        "\nVim wrote this error output:\n$errout\n";
          croak "$prog returned an error code of '$error'$details";
       }
-      close $err_fh;
-      unlink $err_filename;
-   }
-   else {
-      defined $pid
-         or croak "error forking to run $prog: $!";
-
-      {
-        no warnings 'untie';
-        # if tied we may get "Not a GLOB reference" errors (or other issues).
-        tied $_ and untie $_ for *STDIN, *STDOUT, *STDERR;
-      }
-
-      ## no critic (TwoArgOpen)
-      open STDIN, '/dev/null';
-      open STDOUT, '>/dev/null';
-      open STDERR, '>&=' . fileno($err_fh)
-         or croak "can't connect STDERR to temporary file '$err_filename': $!";
-      exec $prog $prog, @args;
-      die "\n";   # exec() will already have sent a suitable error message.
    }
 }
 
@@ -502,7 +512,7 @@ Text::VimColor - Syntax highlight text using Vim
 
 =head1 VERSION
 
-version 0.18
+version 0.19
 
 =head1 SYNOPSIS
 
@@ -951,11 +961,6 @@ This requires vim version 6 (it has since 2003).
 There may be workarounds to support version 5 (technically 5.4+).
 Upgrading vim is a much better idea, but if you need support
 for older versions please file a ticket (with patches if possible).
-
-=item *
-
-It doesn't work on Windows.  I am unlikely to fix this, but if anyone
-who knows Windows can sort it out let me know.
 
 =back
 

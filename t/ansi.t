@@ -4,7 +4,9 @@ use warnings;
 use Test::More;
 use lib 't/lib';
 use TVC_Test;
-use Term::ANSIColor;
+
+eval { require Term::ANSIColor }
+  or plan skip_all => 'Term::ANSIColor required for these tests';
 
 no warnings 'redefine';
 local *Term::ANSIColor::colored = sub {

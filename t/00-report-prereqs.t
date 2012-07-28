@@ -31,6 +31,7 @@ my @modules = qw(
   IPC::Open3
   List::Util
   Path::Class
+  Symbol
   Term::ANSIColor
   Test::More
   perl

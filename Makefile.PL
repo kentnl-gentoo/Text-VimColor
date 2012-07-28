@@ -20,6 +20,7 @@ my %WriteMakefileArgs = (
     "File::Find" => 0,
     "File::Spec::Functions" => 0,
     "List::Util" => 0,
+    "Path::Class" => "0.04",
     "Test::More" => "0.88"
   },
   "CONFIGURE_REQUIRES" => {
@@ -44,12 +45,14 @@ my %WriteMakefileArgs = (
     "File::Temp" => 0,
     "Getopt::Long" => 0,
     "IO::File" => 0,
+    "IPC::Open3" => 0,
     "Path::Class" => 0,
+    "Symbol" => 0,
     "Term::ANSIColor" => "1.03",
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.18",
+  "VERSION" => "0.19",
   "test" => {
     "TESTS" => "t/*.t"
   }
