@@ -50,6 +50,7 @@ t/xml.t
 xt/author/critic.t
 xt/author/pod-spell.t
 xt/author/test-eol.t
+xt/release/changes_has_content.t
 xt/release/cpan-changes.t
 xt/release/dist-manifest.t
 xt/release/distmeta.t
