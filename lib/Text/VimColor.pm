@@ -14,9 +14,9 @@ use strict;
 
 package Text::VimColor;
 {
-  $Text::VimColor::VERSION = '0.20';
+  $Text::VimColor::VERSION = '0.21';
 }
-# git description: v0.19-0-ga57a8f6
+# git description: v0.20-4-g84f5cae
 
 BEGIN {
   $Text::VimColor::AUTHORITY = 'cpan:RWSTAUNER';
@@ -73,31 +73,34 @@ our %ANSI_COLORS = (
 # Set to true to print the command line used to run Vim.
 our $DEBUG = $ENV{TEXT_VIMCOLOR_DEBUG};
 
-sub new
-{
-   my ($class, %options) = @_;
+sub new {
+  my $class = shift;
+  my $self = {
+    extra_vim_options      => [],
+    html_inline_stylesheet => 1,
+    xml_root_element       => 1,
+    vim_let                => {},
+    @_,
+  };
 
-   $options{vim_command} = $VIM_COMMAND
-      unless defined $options{vim_command};
-   $options{vim_options} = \@VIM_OPTIONS
-      unless defined $options{vim_options};
+  $self->{vim_command} = $VIM_COMMAND
+    unless defined $self->{vim_command};
 
-   $options{html_inline_stylesheet} = 1
-      unless exists $options{html_inline_stylesheet};
-   $options{xml_root_element} = 1
-      unless exists $options{xml_root_element};
+  # NOTE: this should be [ @VIM_OPTIONS ] but \@VIM_OPTIONS is backward-compatible
+  $self->{vim_options} = \@VIM_OPTIONS
+    unless defined $self->{vim_options};
 
-   $options{vim_let} = {
-      %VIM_LET,
-      (exists $options{vim_let} ? %{$options{vim_let}} : ()),
-   };
+  # always include these (back-compat)
+  $self->{vim_let} = { %VIM_LET, %{ $self->{vim_let} } };
 
-   croak "only one of the 'file' or 'string' options should be used"
-      if defined $options{file} && defined $options{string};
+  croak "only one of the 'file' or 'string' options should be used"
+    if defined $self->{file} && defined $self->{string};
 
-   my $self = bless \%options, $class;
+   bless $self, $class;
+
+   # run automatically if given a source
    $self->_do_markup
-      if defined $options{file} || defined $options{string};
+      if defined $self->{file} || defined $self->{string};
 
    return $self;
 }
@@ -395,7 +398,7 @@ sub _do_markup
 
    $self->_run(
       $self->{vim_command},
-      @{$self->{vim_options}},
+      $self->vim_options,
       ($file_as_arg ? $filename : ()),
       (
         $use_cmd_opt
@@ -493,10 +496,18 @@ sub _run
    }
 }
 
+sub vim_options {
+  my ($self) = @_;
+  return (
+    @{ $self->{vim_options} },
+    @{ $self->{extra_vim_options} },
+  );
+}
+
 1;
 
-
 __END__
+
 =pod
 
 =encoding utf-8
@@ -512,7 +523,7 @@ Text::VimColor - Syntax highlight text using Vim
 
 =head1 VERSION
 
-version 0.20
+version 0.21
 
 =head1 SYNOPSIS
 
@@ -679,7 +690,16 @@ The default is C<vim>.
 
 A reference to an array of options to pass to Vim.  The default options are:
 
-   qw( -RXZ -i NONE -u NONE -N -n ), "+set nomodeline"
+  [qw( -RXZ -i NONE -u NONE -N -n ), "+set nomodeline"]
+
+You can overwrite the default options by setting this.
+To merely append additional options to the defaults
+use C<extra_vim_options>.
+
+=item extra_vim_options
+
+A reference to an array of additional options to pass to Vim.
+These are appended to the default C<vim_options>.
 
 =item vim_let
 
@@ -978,15 +998,7 @@ option for 'set number'
 
 =item *
 
-extra_vim_options (additional instead of overwriting defaults)
-
-=item *
-
 make global vars available through methods
-
-=item *
-
-test constructor and then simplify it: copy default values into it
 
 =item *
 
@@ -1102,4 +1114,3 @@ This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
