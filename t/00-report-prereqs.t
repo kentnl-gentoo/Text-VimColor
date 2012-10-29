@@ -18,6 +18,7 @@ else {
 
 my @modules = qw(
   Carp
+  Config
   Exporter
   ExtUtils::MakeMaker
   File::Copy
@@ -31,9 +32,13 @@ my @modules = qw(
   IPC::Open3
   List::Util
   Path::Class
+  Pod::Coverage::TrustPod
   Symbol
   Term::ANSIColor
+  Test::CPAN::Meta
   Test::More
+  Test::Pod
+  Test::Pod::Coverage
   perl
   strict
   warnings
@@ -68,7 +73,7 @@ for my $mod ( @modules ) {
     push @reports, ["missing", $mod];
   }
 }
-    
+
 if ( @reports ) {
   my $vl = max map { length $_->[0] } @reports;
   my $ml = max map { length $_->[1] } @reports;

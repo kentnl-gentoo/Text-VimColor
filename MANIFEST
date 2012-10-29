@@ -25,6 +25,7 @@ t/00-compile.t
 t/00-report-prereqs.t
 t/000-vim-version.t
 t/ansi.t
+t/bin.t
 t/compare-formats.t
 t/data/has_tabs.pl
 t/data/hello.c

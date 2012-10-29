@@ -14,9 +14,9 @@ use strict;
 
 package Text::VimColor;
 {
-  $Text::VimColor::VERSION = '0.21';
+  $Text::VimColor::VERSION = '0.22';
 }
-# git description: v0.20-4-g84f5cae
+# git description: v0.21-3-gba8536e
 
 BEGIN {
   $Text::VimColor::AUTHORITY = 'cpan:RWSTAUNER';
@@ -153,6 +153,7 @@ sub ansi
    my $syntax = $self->marked;
 
    require Term::ANSIColor;
+
   # allow the environment to overwrite:
   my %colors = (
     %ANSI_COLORS,
@@ -523,7 +524,7 @@ Text::VimColor - Syntax highlight text using Vim
 
 =head1 VERSION
 
-version 0.21
+version 0.22
 
 =head1 SYNOPSIS
 

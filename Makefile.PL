@@ -15,6 +15,7 @@ my %WriteMakefileArgs = (
   "ABSTRACT" => "Syntax highlight text using Vim",
   "AUTHOR" => "Geoff Richards <qef\@laxan.com>, Randy Stauner <rwstauner\@cpan.org>",
   "BUILD_REQUIRES" => {
+    "Config" => 0,
     "Exporter" => 0,
     "ExtUtils::MakeMaker" => 0,
     "File::Find" => 0,
@@ -52,7 +53,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.21",
+  "VERSION" => "0.22",
   "test" => {
     "TESTS" => "t/*.t"
   }
@@ -74,6 +75,10 @@ unless ( eval { ExtUtils::MakeMaker->VERSION(6.56) } ) {
 
 delete $WriteMakefileArgs{CONFIGURE_REQUIRES}
   unless eval { ExtUtils::MakeMaker->VERSION(6.52) };
+
+if ( $^O eq 'MSWin32' ) {
+	$WriteMakefileArgs{PREREQ_PM}{'Win32::Console::ANSI'} = '0';
+}
 
 WriteMakefile(%WriteMakefileArgs);
 

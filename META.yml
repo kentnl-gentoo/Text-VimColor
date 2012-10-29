@@ -4,6 +4,7 @@ author:
   - 'Geoff Richards <qef@laxan.com>'
   - 'Randy Stauner <rwstauner@cpan.org>'
 build_requires:
+  Config: 0
   Exporter: 0
   ExtUtils::MakeMaker: 0
   File::Find: 0
@@ -19,8 +20,8 @@ configure_requires:
   IPC::Open3: 0
   strict: 0
   warnings: 0
-dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.300023, CPAN::Meta::Converter version 2.120921'
+dynamic_config: 1
+generated_by: 'Dist::Zilla version 4.300028, CPAN::Meta::Converter version 2.120921'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -42,7 +43,7 @@ no_index:
 provides:
   Text::VimColor:
     file: lib/Text/VimColor.pm
-    version: 0.21
+    version: 0.22
 recommends:
   Term::ANSIColor: 3
 requires:
@@ -63,41 +64,43 @@ resources:
   bugtracker: http://rt.cpan.org/Public/Dist/Display.html?Name=Text-VimColor
   homepage: https://github.com/rwstauner/Text-VimColor
   repository: https://github.com/rwstauner/Text-VimColor.git
-version: 0.21
+version: 0.22
 x_Dist_Zilla:
+  perl:
+    version: 5.014002
   plugins:
     -
       class: Dist::Zilla::Plugin::Git::NextVersion
       name: '@Author::RWSTAUNER/Git::NextVersion'
-      version: 1.122460
+      version: 2.001
     -
       class: Dist::Zilla::Plugin::GenerateFile
       name: '@Author::RWSTAUNER/GenerateManifestSkip'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::GatherDir
       name: '@Author::RWSTAUNER/GatherDir'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::PruneCruft
       name: '@Author::RWSTAUNER/PruneCruft'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::ManifestSkip
       name: '@Author::RWSTAUNER/ManifestSkip'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::PruneFiles
       name: '@Author::RWSTAUNER/PruneDevelCoverDatabase'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::PruneFiles
       name: '@Author::RWSTAUNER/PruneCodeStatCollection'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::PruneFiles
       name: '@Author::RWSTAUNER/PruneTags'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::Authority
       name: '@Author::RWSTAUNER/Authority'
@@ -105,7 +108,7 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::NextRelease
       name: '@Author::RWSTAUNER/NextRelease'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::Git::Describe
       name: '@Author::RWSTAUNER/Git::Describe'
@@ -113,7 +116,7 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::PkgVersion
       name: '@Author::RWSTAUNER/PkgVersion'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::Prepender
       name: '@Author::RWSTAUNER/Prepender'
@@ -125,11 +128,11 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::License
       name: '@Author::RWSTAUNER/License'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::Readme
       name: '@Author::RWSTAUNER/Readme'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::ReadmeAnyFromPod
       name: '@Author::RWSTAUNER/ReadmeAnyFromPod'
@@ -141,7 +144,7 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::Repository
       name: '@Author::RWSTAUNER/Repository'
-      version: 0.18
+      version: 0.19
     -
       class: Dist::Zilla::Plugin::GithubMeta
       name: '@Author::RWSTAUNER/GithubMeta'
@@ -149,11 +152,11 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::AutoPrereqs
       name: '@Author::RWSTAUNER/AutoPrereqs'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::MetaNoIndex
       name: '@Author::RWSTAUNER/MetaNoIndex'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::MetaProvides::Package
       name: '@Author::RWSTAUNER/MetaProvides::Package'
@@ -165,27 +168,27 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::MetaConfig
       name: '@Author::RWSTAUNER/MetaConfig'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::MetaYAML
       name: '@Author::RWSTAUNER/MetaYAML'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::MetaJSON
       name: '@Author::RWSTAUNER/MetaJSON'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::ExecDir
       name: '@Author::RWSTAUNER/ExecDir'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::ShareDir
       name: '@Author::RWSTAUNER/ShareDir'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::MakeMaker
       name: '@Author::RWSTAUNER/MakeMaker'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::Test::ReportPrereqs
       name: '@Author::RWSTAUNER/Test::ReportPrereqs'
@@ -217,7 +220,7 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::PodCoverageTests
       name: '@Author::RWSTAUNER/@TestingMania/PodCoverageTests'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::Test::Perl::Critic
       name: '@Author::RWSTAUNER/@TestingMania/Test::Perl::Critic'
@@ -237,7 +240,7 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::MetaTests
       name: '@Author::RWSTAUNER/@TestingMania/MetaTests'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::Test::Compile
       name: '@Author::RWSTAUNER/@TestingMania/Test::Compile'
@@ -265,7 +268,7 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::PodSyntaxTests
       name: '@Author::RWSTAUNER/@TestingMania/PodSyntaxTests'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::MojibakeTests
       name: '@Author::RWSTAUNER/@TestingMania/MojibakeTests'
@@ -273,7 +276,7 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::Manifest
       name: '@Author::RWSTAUNER/Manifest'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::CheckExtraTests
       name: '@Author::RWSTAUNER/CheckExtraTests'
@@ -289,31 +292,31 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::TestRelease
       name: '@Author::RWSTAUNER/TestRelease'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::Git::Check
       name: '@Author::RWSTAUNER/@Git/Check'
-      version: 1.122460
+      version: 2.001
     -
       class: Dist::Zilla::Plugin::Git::Commit
       name: '@Author::RWSTAUNER/@Git/Commit'
-      version: 1.122460
+      version: 2.001
     -
       class: Dist::Zilla::Plugin::Git::Tag
       name: '@Author::RWSTAUNER/@Git/Tag'
-      version: 1.122460
+      version: 2.001
     -
       class: Dist::Zilla::Plugin::Git::Push
       name: '@Author::RWSTAUNER/@Git/Push'
-      version: 1.122460
+      version: 2.001
     -
       class: Dist::Zilla::Plugin::ConfirmRelease
       name: '@Author::RWSTAUNER/ConfirmRelease'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::UploadToCPAN
       name: '@Author::RWSTAUNER/UploadToCPAN'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::InstallRelease
       name: '@Author::RWSTAUNER/InstallRelease'
@@ -325,7 +328,7 @@ x_Dist_Zilla:
           phase: runtime
           type: requires
       name: Prereqs
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::Prereqs
       config:
@@ -333,19 +336,27 @@ x_Dist_Zilla:
           phase: runtime
           type: recommends
       name: RuntimeRecommends
-      version: 4.300023
+      version: 4.300028
+    -
+      class: Dist::Zilla::Plugin::OSPrereqs
+      config:
+        Dist::Zilla::Plugin::OSPrereqs:
+          os: MSWin32
+      name: MSWin32
+      version: 0.003
     -
       class: Dist::Zilla::Plugin::RemovePrereqs
       config:
         Dist::Zilla::Plugin::RemovePrereqs:
           modules_to_remove:
             - inc::VimCommand
+            - Win32::Console::ANSI
       name: RemovePrereqs
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::GatherDir
       name: GatherTestDotVim
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::Run::AfterBuild
       name: Run::AfterBuild
@@ -353,30 +364,30 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::FinderCode
       name: ':InstallModules'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::FinderCode
       name: ':IncModules'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::FinderCode
       name: ':TestFiles'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::FinderCode
       name: ':ExecFiles'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::FinderCode
       name: ':ShareFiles'
-      version: 4.300023
+      version: 4.300028
     -
       class: Dist::Zilla::Plugin::FinderCode
       name: ':MainModule'
-      version: 4.300023
+      version: 4.300028
   zilla:
     class: Dist::Zilla::Dist::Builder
     config:
       is_trial: 0
-    version: 4.300023
+    version: 4.300028
 x_authority: cpan:RWSTAUNER
