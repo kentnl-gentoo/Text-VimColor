@@ -14,14 +14,16 @@ use strict;
 
 package Text::VimColor;
 {
-  $Text::VimColor::VERSION = '0.22';
+  $Text::VimColor::VERSION = '0.23';
 }
-# git description: v0.21-3-gba8536e
+# git description: v0.22-5-g8b08ddd
 
 BEGIN {
   $Text::VimColor::AUTHORITY = 'cpan:RWSTAUNER';
 }
 # ABSTRACT: Syntax highlight text using Vim
+
+use constant HAVE_ENCODING => ($] >= 5.008001); # PerlIO::encoding & utf8::is_utf8
 
 use IO::File;
 use File::Copy qw( copy );
@@ -328,8 +330,12 @@ sub _do_markup
       print STDERR __PACKAGE__."::_do_markup: script: $vim_syntax_script\n";
    }
 
+  my $encoding = $self->{encoding} || '';
+  my $binmode = ':raw';
+
    my $filename = $self->{file};
    my $input_is_temporary = 0;
+
    if (ref $self->{file}) {
       my $fh;
       ($fh, $filename) = tempfile();
@@ -344,8 +350,18 @@ sub _do_markup
       ($fh, $filename) = tempfile();
       $input_is_temporary = 1;
 
-      binmode $fh;
-      print $fh (ref $self->{string} ? ${$self->{string}} : $self->{string});
+      my $string = (ref $self->{string} ? ${ $self->{string} } : $self->{string});
+
+      if( HAVE_ENCODING ){
+        if( utf8::is_utf8($string) ){
+          $encoding ||= 'UTF-8';
+          $binmode = ":encoding($encoding)"
+            if $encoding;
+        }
+      }
+
+      binmode $fh, $binmode;
+      print $fh $string;
    }
    else {
       croak "input file '$filename' not found"
@@ -378,13 +394,23 @@ sub _do_markup
 
   my @script_lines = (
     map { "$_\n" }
+      # The default 'encoding' comes from env so set it explicitly to avoid
+      # conversion from 'encoding' to 'fileencoding'.
+      # Set 'fileencodings' so vim doesn't try to choose.
+      # Set 'nomodified' after 'fenc' so vim doesn't prompt for unsaved changes.
+      ($encoding ?
+        ":set encoding=$encoding fileencodings=$encoding fileencoding=$encoding nomodified"
+        : ()),
+
       # do :edit before :let or the buffer variables may get reset
       (!$file_as_arg ? ":edit $filename" : ()),
+
       (
         map  { ":let $_=$vim_let->{$_}" }
         grep { defined  $vim_let->{$_} }
           keys %$vim_let
       ),
+
       ':filetype on',
        $filetype_set,
       ":source $vim_syntax_script",
@@ -397,6 +423,8 @@ sub _do_markup
    print $script_fh @script_lines;
    close $script_fh;
 
+  # TODO: it seems we may need to localize and delete $ENV{LANG}
+  # to enable encodings other than utf-8 to work.
    $self->_run(
       $self->{vim_command},
       $self->vim_options,
@@ -412,6 +440,8 @@ sub _do_markup
       if $input_is_temporary;
    unlink $out_filename;
    unlink $script_filename;
+
+  binmode $out_fh, $binmode;
 
    my $data = do { local $/; <$out_fh> };
 
@@ -514,9 +544,9 @@ __END__
 =encoding utf-8
 
 =for :stopwords Geoff Richards Randy Stauner ACKNOWLEDGEMENTS ansi html xml DOCTYPE XHTML
-XSL XSLT XSL-FO pdf inline stylesheet filetype PreProc Todo TODO syntaxes
-Moolenaar cpan testmatrix url annocpan anno bugtracker rt cpants kwalitee
-diff irc mailto metadata placeholders metacpan
+XSL XSLT XSL-FO pdf inline stylesheet filetype unencoded PreProc Todo TODO
+syntaxes Moolenaar cpan testmatrix url annocpan anno bugtracker rt cpants
+kwalitee diff irc mailto metadata placeholders metacpan
 
 =head1 NAME
 
@@ -524,7 +554,7 @@ Text::VimColor - Syntax highlight text using Vim
 
 =head1 VERSION
 
-version 0.22
+version 0.23
 
 =head1 SYNOPSIS
 
@@ -606,6 +636,10 @@ Use this to pass a string to be used as the input.  This is an alternative
 to the C<file> option.  A reference to a string will also work.
 
 The L</syntax_mark_string> method is another way to use a string as input.
+
+If you provide a character (unencoded) string (recommended)
+it will be passed to vim encoded in UTF-8
+and your result will be character string.
 
 =item filetype
 
@@ -988,10 +1022,6 @@ for older versions please file a ticket (with patches if possible).
 =head1 TODO
 
 =over 4
-
-=item *
-
-L<https://github.com/rwstauner/Text-VimColor/issues/1>
 
 =item *
 

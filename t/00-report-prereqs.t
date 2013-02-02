@@ -39,6 +39,7 @@ my @modules = qw(
   Test::More
   Test::Pod
   Test::Pod::Coverage
+  constant
   perl
   strict
   warnings

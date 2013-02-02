@@ -50,10 +50,11 @@ my %WriteMakefileArgs = (
     "Path::Class" => 0,
     "Symbol" => 0,
     "Term::ANSIColor" => "1.03",
+    "constant" => 0,
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.22",
+  "VERSION" => "0.23",
   "test" => {
     "TESTS" => "t/*.t"
   }
