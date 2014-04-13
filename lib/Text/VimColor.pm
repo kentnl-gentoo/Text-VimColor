@@ -13,11 +13,8 @@ use warnings;
 use strict;
 
 package Text::VimColor;
-{
-  $Text::VimColor::VERSION = '0.23';
-}
-# git description: v0.22-5-g8b08ddd
-
+# git description: v0.23-5-g50a1c15
+$Text::VimColor::VERSION = '0.24';
 BEGIN {
   $Text::VimColor::AUTHORITY = 'cpan:RWSTAUNER';
 }
@@ -541,12 +538,14 @@ __END__
 
 =pod
 
-=encoding utf-8
+=encoding UTF-8
 
 =for :stopwords Geoff Richards Randy Stauner ACKNOWLEDGEMENTS ansi html xml DOCTYPE XHTML
-XSL XSLT XSL-FO pdf inline stylesheet filetype unencoded PreProc Todo TODO
-syntaxes Moolenaar cpan testmatrix url annocpan anno bugtracker rt cpants
-kwalitee diff irc mailto metadata placeholders metacpan
+XSL XSLT XSL-FO pdf inline stylesheet filetype unencoded Vyacheslav
+Matyukhin mattn <geoffr@cpan.org> <mmcleric@yandex-team.ru>
+<mattn.jp@gmail.com> PreProc Todo TODO syntaxes Moolenaar cpan testmatrix
+url annocpan anno bugtracker rt cpants kwalitee diff irc mailto metadata
+placeholders metacpan
 
 =head1 NAME
 
@@ -554,7 +553,7 @@ Text::VimColor - Syntax highlight text using Vim
 
 =head1 VERSION
 
-version 0.23
+version 0.24
 
 =head1 SYNOPSIS
 
@@ -1054,51 +1053,11 @@ in addition to those websites please use your favorite search engine to discover
 
 =item *
 
-Search CPAN
+MetaCPAN
 
-The default CPAN search engine, useful to view POD in HTML format.
+A modern, open-source CPAN search engine, useful to view POD in HTML format.
 
-L<http://search.cpan.org/dist/Text-VimColor>
-
-=item *
-
-RT: CPAN's Bug Tracker
-
-The RT ( Request Tracker ) website is the default bug/issue tracking system for CPAN.
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Text-VimColor>
-
-=item *
-
-CPAN Ratings
-
-The CPAN Ratings is a website that allows community ratings and reviews of Perl modules.
-
-L<http://cpanratings.perl.org/d/Text-VimColor>
-
-=item *
-
-CPAN Testers
-
-The CPAN Testers is a network of smokers who run automated tests on uploaded CPAN distributions.
-
-L<http://www.cpantesters.org/distro/T/Text-VimColor>
-
-=item *
-
-CPAN Testers Matrix
-
-The CPAN Testers Matrix is a website that provides a visual overview of the test results for a distribution on various Perls/platforms.
-
-L<http://matrix.cpantesters.org/?dist=Text-VimColor>
-
-=item *
-
-CPAN Testers Dependencies
-
-The CPAN Testers Dependencies is a website that shows a chart of the test results of all dependencies for a distribution.
-
-L<http://deps.cpantesters.org/?module=Text::VimColor>
+L<http://metacpan.org/release/Text-VimColor>
 
 =back
 
@@ -1132,6 +1091,24 @@ Geoff Richards <qef@laxan.com>
 =item *
 
 Randy Stauner <rwstauner@cpan.org>
+
+=back
+
+=head1 CONTRIBUTORS
+
+=over 4
+
+=item *
+
+Geoff Richards <geoffr@cpan.org>
+
+=item *
+
+Vyacheslav Matyukhin <mmcleric@yandex-team.ru>
+
+=item *
+
+mattn <mattn.jp@gmail.com>
 
 =back
 
