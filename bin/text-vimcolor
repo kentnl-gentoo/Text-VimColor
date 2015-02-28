@@ -23,6 +23,7 @@ use IO::File;
 use Path::Class qw( file );
 
 # Default values for options.
+my $all_syntax_groups;
 my $filetype;
 my $format = 'ansi';
 my $usage;
@@ -34,6 +35,7 @@ my @unlet;
 
 my $option = GetOptions(
    'debug' => \$Text::VimColor::DEBUG,
+   'all-syntax-groups' => \$all_syntax_groups,
    'filetype=s' => \$filetype,
    'format=s' => \$format,
    'help' => \$usage,
@@ -95,6 +97,7 @@ else {
 my $file = @ARGV ? shift : \*STDIN;
 
 my $syntax = Text::VimColor->new(
+   all_syntax_groups => $all_syntax_groups,
    filetype => $filetype,
    html_full_page => $html_full_page,
    html_inline_stylesheet => !$html_no_inline_stylesheet,
@@ -155,10 +158,9 @@ __END__
 =encoding UTF-8
 
 =for :stopwords Geoff Richards Randy Stauner ACKNOWLEDGEMENTS ansi html xml DOCTYPE XHTML
-XSL XSLT XSL-FO pdf inline stylesheet filetype unencoded Vyacheslav
-Matyukhin mattn <geoffr@cpan.org> <mmcleric@yandex-team.ru>
-<mattn.jp@gmail.com> --filetype --unlet --inline --no-inline-stylesheet
-text-vimcolor
+XSL XSLT XSL-FO pdf inline stylesheet filetype unencoded Hinrik Matyukhin
+Sigurðsson Vyacheslav mattn Örn --filetype --unlet --inline
+--no-inline-stylesheet text-vimcolor
 
 =head1 NAME
 
@@ -166,7 +168,7 @@ text-vimcolor - Use Text:VimColor from the command line
 
 =head1 VERSION
 
-version 0.24
+version 0.25
 
 =head1 SYNOPSIS
 
@@ -208,6 +210,11 @@ Show a summary of the usage, including a list of options.
 
 Turns on debugging in the underlying Perl module.  This makes it print
 the command used to run Vim.
+
+=item --all-syntax-groups
+
+Enables additional syntax groups instead of just the primary ones.
+See L<Text::VimColor/all_syntax_groups> for more information.
 
 =item --filetype I<file-type>
 

@@ -13,13 +13,11 @@ use warnings;
 use strict;
 
 package Text::VimColor;
-# git description: v0.23-5-g50a1c15
-$Text::VimColor::VERSION = '0.24';
-BEGIN {
-  $Text::VimColor::AUTHORITY = 'cpan:RWSTAUNER';
-}
-# ABSTRACT: Syntax highlight text using Vim
+# git description: v0.24-8-g0f6a6ca
 
+our $AUTHORITY = 'cpan:RWSTAUNER';
+# ABSTRACT: Syntax highlight text using Vim
+$Text::VimColor::VERSION = '0.25';
 use constant HAVE_ENCODING => ($] >= 5.008001); # PerlIO::encoding & utf8::is_utf8
 
 use IO::File;
@@ -43,19 +41,6 @@ our %VIM_LET = (
    'b:is_bash' => 1,
 );
 
-our %SYNTAX_TYPE = (
-   Comment    => 1,
-   Constant   => 1,
-   Identifier => 1,
-   Statement  => 1,
-   PreProc    => 1,
-   Type       => 1,
-   Special    => 1,
-   Underlined => 1,
-   Error      => 1,
-   Todo       => 1,
-);
-
 our %ANSI_COLORS = (
    Comment    =>  'blue',
    Constant   =>  'red',
@@ -65,9 +50,45 @@ our %ANSI_COLORS = (
    Type       =>  'green',
    Special    =>  'bright_magenta',
    Underlined =>  'underline',
+   Ignore     =>  'bright_white',
    Error      =>  'on_red',
    Todo       =>  'on_cyan',
 );
+
+
+# These extra syntax group are available but linked to the groups above by
+# default in vim. They'll get their own highlighting if the user unlinks them.
+our %SYNTAX_LINKS;
+
+$SYNTAX_LINKS{ $_ } = 'Constant'
+  for qw( String Character Number Boolean Float );
+
+$SYNTAX_LINKS{ $_ } = 'Identifier'
+  for qw( Function );
+
+$SYNTAX_LINKS{ $_ } = 'Statement'
+  for qw( Conditional Repeat Label Operator Keyword Exception );
+
+$SYNTAX_LINKS{ $_ } = 'PreProc'
+  for qw( Include Define Macro PreCondit );
+
+$SYNTAX_LINKS{ $_ } = 'Type'
+  for qw( StorageClass Structure Typedef );
+
+$SYNTAX_LINKS{ $_ } = 'Special'
+  for qw( Tag SpecialChar Delimiter SpecialComment Debug );
+
+
+# Copy ansi color for main group to all subgroups.
+$ANSI_COLORS{ $_ } = $ANSI_COLORS{ $SYNTAX_LINKS{ $_ } }
+  for keys %SYNTAX_LINKS;
+
+
+# Build a lookup table to determine if a syntax exists.
+our %SYNTAX_TYPE = map { ($_ => 1) }
+  # Re-use ansi color hash.
+  keys %ANSI_COLORS;
+
 
 # Set to true to print the command line used to run Vim.
 our $DEBUG = $ENV{TEXT_VIMCOLOR_DEBUG};
@@ -75,6 +96,7 @@ our $DEBUG = $ENV{TEXT_VIMCOLOR_DEBUG};
 sub new {
   my $class = shift;
   my $self = {
+    all_syntax_groups      => 0,
     extra_vim_options      => [],
     html_inline_stylesheet => 1,
     xml_root_element       => 1,
@@ -170,9 +192,9 @@ sub ansi
   # compared to join/map or foreach/my this benched as the fastest:
   my $ansi = '';
   for ( @$syntax ){
-    $ansi .= $_->[0] eq ''
-      ? $_->[1]
-      : Term::ANSIColor::colored([ $colors{ $_->[0] } ], $_->[1]);
+    $ansi .= $colors{$_->[0]}
+      ? Term::ANSIColor::colored([ $colors{ $_->[0] } ], $_->[1])
+      : $_->[1];
   }
 
    return $ansi;
@@ -319,6 +341,7 @@ sub _do_markup
 {
    my ($self) = @_;
    my $vim_syntax_script = $self->dist_file('mark.vim');
+   my $vim_define_all = $self->dist_file('define_all.vim');
 
    croak "Text::VimColor syntax script '$vim_syntax_script' not installed"
       unless -f $vim_syntax_script && -r $vim_syntax_script;
@@ -410,6 +433,7 @@ sub _do_markup
 
       ':filetype on',
        $filetype_set,
+       $self->{all_syntax_groups} ? ":source $vim_define_all" : (),
       ":source $vim_syntax_script",
       ":write! $out_filename",
       ':qall!',
@@ -462,9 +486,6 @@ sub _do_markup
 sub _add_markup
 {
    my ($syntax, $type, $text) = @_;
-
-   # TODO: make this optional
-   # (https://github.com/petdance/vim-perl/blob/master/t/01_highlighting.t#L12)
 
    # Ignore types we don't know about.  At least one syntax file (xml.vim)
    # can produce these.  It happens when a syntax type isn't 'linked' to
@@ -541,11 +562,10 @@ __END__
 =encoding UTF-8
 
 =for :stopwords Geoff Richards Randy Stauner ACKNOWLEDGEMENTS ansi html xml DOCTYPE XHTML
-XSL XSLT XSL-FO pdf inline stylesheet filetype unencoded Vyacheslav
-Matyukhin mattn <geoffr@cpan.org> <mmcleric@yandex-team.ru>
-<mattn.jp@gmail.com> PreProc Todo TODO syntaxes Moolenaar cpan testmatrix
-url annocpan anno bugtracker rt cpants kwalitee diff irc mailto metadata
-placeholders metacpan
+XSL XSLT XSL-FO pdf inline stylesheet filetype unencoded Hinrik Matyukhin
+Sigurðsson Vyacheslav mattn Örn PreProc Todo TODO syntaxes Moolenaar cpan
+testmatrix url annocpan anno bugtracker rt cpants kwalitee diff irc mailto
+metadata placeholders metacpan
 
 =head1 NAME
 
@@ -553,7 +573,7 @@ Text::VimColor - Syntax highlight text using Vim
 
 =head1 VERSION
 
-version 0.24
+version 0.25
 
 =head1 SYNOPSIS
 
@@ -655,6 +675,55 @@ distribution.
 This option, whether or not it is passed to L</new>, can be overridden
 when calling L</syntax_mark_file> and L</syntax_mark_string>, so you can
 use the same object to process multiple files of different types.
+
+=item all_syntax_groups
+
+By default, this option is disabled. That means that the highlighting will
+only use the following syntax groups:
+
+  Comment
+  Constant
+  Identifier
+  Statement
+  PreProc
+  Type
+  Special
+  Underlined
+  Ignore
+  Error
+  Todo
+
+This mirrors vim's default behavior of linking more specific syntax groups
+to the main groups above. However, most syntax files support more specific
+groups, so if you want to benefit from finer-grained syntax highlighting
+you can turn on this option. The additional syntax groups are:
+
+  Group             Linked to by default
+  ---------------------------------------
+  String            Constant
+  Character         Constant
+  Number            Constant
+  Boolean           Constant
+  Float             Constant
+  Function          Identifier
+  Conditional       Statement
+  Repeat            Statement
+  Label             Statement
+  Operator          Statement
+  Keyword           Statement
+  Exception         Statement
+  Include           PreProc
+  Define            PreProc
+  Macro             PreProc
+  PreCondit         PreProc
+  StorageClass      Type
+  Structure         Type
+  Typedef           Type
+  Tag               Special
+  SpecialChar       Special
+  Delimiter         Special
+  SpecialComment    Special
+  Debug             Special
 
 =item html_full_page
 
@@ -1064,7 +1133,7 @@ L<http://metacpan.org/release/Text-VimColor>
 =head2 Bugs / Feature Requests
 
 Please report any bugs or feature requests by email to C<bug-text-vimcolor at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Text-VimColor>. You will be automatically notified of any
+the web interface at L<https://rt.cpan.org/Public/Bug/Report.html?Queue=Text-VimColor>. You will be automatically notified of any
 progress on the request by the system.
 
 =head2 Source Code
@@ -1096,11 +1165,17 @@ Randy Stauner <rwstauner@cpan.org>
 
 =head1 CONTRIBUTORS
 
+=for stopwords Geoff Richards Hinrik Örn Sigurðsson Vyacheslav Matyukhin mattn
+
 =over 4
 
 =item *
 
 Geoff Richards <geoffr@cpan.org>
+
+=item *
+
+Hinrik Örn Sigurðsson <hinrik.sig@gmail.com>
 
 =item *
 
