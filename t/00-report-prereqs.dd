@@ -24,7 +24,8 @@ do { my $x = {
                                       'Test::Pod::Coverage' => '1.08',
                                       'Test::Spelling' => '0.12',
                                       'Test::Synopsis' => '0',
-                                      'Test::Version' => '1'
+                                      'Test::Version' => '1',
+                                      'XML::Parser' => '0'
                                     }
                     },
        'runtime' => {
@@ -60,6 +61,7 @@ do { my $x = {
                                    'IO::Handle' => '0',
                                    'IPC::Open3' => '0',
                                    'Path::Class' => '0.04',
+                                   'Test::File::ShareDir::Dist' => '0',
                                    'Test::More' => '0.88',
                                    'lib' => '0',
                                    'perl' => '5.006'

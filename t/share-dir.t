@@ -3,11 +3,13 @@
 use strict;
 use warnings;
 use Test::More;
-use Text::VimColor;
+use lib 't/lib';
+use TVC_Test;
 
 my %files =
   map { ($_ => Text::VimColor->dist_file($_)) }
     qw(
+      define_all.vim
       light.css
       light.xsl
       mark.vim

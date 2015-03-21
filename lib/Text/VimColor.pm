@@ -13,11 +13,11 @@ use warnings;
 use strict;
 
 package Text::VimColor;
-# git description: v0.24-8-g0f6a6ca
+# git description: v0.25-8-g77558c1
 
 our $AUTHORITY = 'cpan:RWSTAUNER';
 # ABSTRACT: Syntax highlight text using Vim
-$Text::VimColor::VERSION = '0.25';
+$Text::VimColor::VERSION = '0.26';
 use constant HAVE_ENCODING => ($] >= 5.008001); # PerlIO::encoding & utf8::is_utf8
 
 use IO::File;
@@ -573,7 +573,7 @@ Text::VimColor - Syntax highlight text using Vim
 
 =head1 VERSION
 
-version 0.25
+version 0.26
 
 =head1 SYNOPSIS
 

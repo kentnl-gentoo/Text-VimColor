@@ -20,6 +20,7 @@ my @files = (
     't/encoding.t',
     't/html.t',
     't/input_filename.t',
+    't/lib/TVC_Share.pm',
     't/lib/TVC_Test.pm',
     't/new.t',
     't/override-options.t',
