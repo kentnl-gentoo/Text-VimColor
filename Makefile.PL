@@ -12,6 +12,8 @@ use warnings;
 
 use 5.006;
 
+use lib q[.];
+
 use inc::VimCommand;
 use ExtUtils::MakeMaker;
 
